@@ -1,0 +1,17 @@
+syntax="proto3";
+
+package server;
+
+option go_package = "internal/server/contracts/";
+
+message ExampleRequest {
+  string url = 1;
+}
+
+message ExampleResponse {
+  string result = 1;
+}
+
+service KeeperService {
+  rpc Example (ExampleRequest) returns (ExampleResponse);
+}
