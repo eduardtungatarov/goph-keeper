@@ -1,7 +1,12 @@
-package server
+package main
 
-import "fmt"
+import (
+	"context"
+	"os/signal"
+	"syscall"
+)
 
 func main() {
-	fmt.Println("test")
+	_, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	defer stop()
 }
