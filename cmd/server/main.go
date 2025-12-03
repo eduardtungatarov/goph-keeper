@@ -3,8 +3,16 @@ package main
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"os"
 	"os/signal"
 	"syscall"
+
+	"golang.org/x/sync/errgroup"
+
+	"github.com/eduardtungatarov/goph-keeper/internal/config"
+	grpcServer "github.com/eduardtungatarov/goph-keeper/internal/server/grpc"
+	"github.com/eduardtungatarov/goph-keeper/internal/server/handler"
 
 	"github.com/eduardtungatarov/goph-keeper/internal/logger"
 	"github.com/pressly/goose"
@@ -13,17 +21,21 @@ import (
 )
 
 func main() {
-	_, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
 	// Логер.
-	log, err := logger.New()
+	log, err := logger.Init()
 	if err != nil {
-		panic(err)
+		fmt.Fprintf(os.Stderr, "Failed to initialize logger: %v", err)
+		os.Exit(1)
 	}
 
+	// Инициализируем конфиг.
+	cfg := config.Load()
+
 	// Получаем экземпляр БД.
-	db, err := sql.Open("pgx", "DSN")
+	db, err := sql.Open("pgx", cfg.DatabaseDSN)
 	if err != nil {
 		log.Fatalf("Failed to open DB: %v", err)
 	}
@@ -34,4 +46,22 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to apply migrations: %v", err)
 	}
+
+	grp, ctx := errgroup.WithContext(ctx)
+
+	// Инициализируем и запускаем grpc сервер.
+	grp.Go(func() error {
+		h := handler.New()
+		s := grpcServer.New(log, h)
+		err := s.Run(ctx)
+		if err != nil {
+			return fmt.Errorf("gRPC server Run error: %w", err)
+		}
+		return nil
+	})
+
+	if err := grp.Wait(); err != nil {
+		log.Errorf("failed service reason: %v", err)
+	}
+	log.Info("service has been stopped")
 }
