@@ -7,6 +7,7 @@ import (
 	"syscall"
 
 	"github.com/eduardtungatarov/goph-keeper/internal/logger"
+	"github.com/pressly/goose"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
@@ -16,15 +17,21 @@ func main() {
 	defer stop()
 
 	// Логер.
-	log, err := logger.MakeLogger()
+	log, err := logger.New()
 	if err != nil {
 		panic(err)
 	}
 
-	// Подключаемся к базе данных.
+	// Получаем экземпляр БД.
 	db, err := sql.Open("pgx", "DSN")
 	if err != nil {
 		log.Fatalf("Failed to open DB: %v", err)
 	}
 	defer db.Close()
+
+	// Применяем миграции.
+	err = goose.Up(db, "migrations")
+	if err != nil {
+		log.Fatalf("Failed to apply migrations: %v", err)
+	}
 }

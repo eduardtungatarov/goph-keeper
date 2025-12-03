@@ -18,3 +18,6 @@ test:
 
 up:
 	docker-compose up -d
+
+dep:
+	go mod tidy
