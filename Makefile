@@ -9,3 +9,10 @@ make gen-sql:
 
 migrate-create:
 	goose -dir migrations create ${name} sql
+
+
+vet:
+	go vet ./... && goimports -w . && gofumpt -w -extra . && staticcheck ./...
+
+test:
+	go test ./...
