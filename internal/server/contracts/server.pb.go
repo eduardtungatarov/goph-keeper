@@ -501,6 +501,102 @@ func (x *ListResponse) GetDataList() []*DataItem {
 	return nil
 }
 
+type LoginRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Login         string                 `protobuf:"bytes,1,opt,name=login,proto3" json:"login,omitempty"`
+	Password      string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LoginRequest) Reset() {
+	*x = LoginRequest{}
+	mi := &file_contracts_server_server_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LoginRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LoginRequest) ProtoMessage() {}
+
+func (x *LoginRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_contracts_server_server_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LoginRequest.ProtoReflect.Descriptor instead.
+func (*LoginRequest) Descriptor() ([]byte, []int) {
+	return file_contracts_server_server_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *LoginRequest) GetLogin() string {
+	if x != nil {
+		return x.Login
+	}
+	return ""
+}
+
+func (x *LoginRequest) GetPassword() string {
+	if x != nil {
+		return x.Password
+	}
+	return ""
+}
+
+type LoginResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Token         string                 `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LoginResponse) Reset() {
+	*x = LoginResponse{}
+	mi := &file_contracts_server_server_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LoginResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LoginResponse) ProtoMessage() {}
+
+func (x *LoginResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_contracts_server_server_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LoginResponse.ProtoReflect.Descriptor instead.
+func (*LoginResponse) Descriptor() ([]byte, []int) {
+	return file_contracts_server_server_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *LoginResponse) GetToken() string {
+	if x != nil {
+		return x.Token
+	}
+	return ""
+}
+
 var File_contracts_server_server_proto protoreflect.FileDescriptor
 
 const file_contracts_server_server_proto_rawDesc = "" +
@@ -527,14 +623,21 @@ const file_contracts_server_server_proto_rawDesc = "" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\"\r\n" +
 	"\vListRequest\"=\n" +
 	"\fListResponse\x12-\n" +
-	"\tdata_list\x18\x01 \x03(\v2\x10.server.DataItemR\bdataList*:\n" +
+	"\tdata_list\x18\x01 \x03(\v2\x10.server.DataItemR\bdataList\"@\n" +
+	"\fLoginRequest\x12\x14\n" +
+	"\x05login\x18\x01 \x01(\tR\x05login\x12\x1a\n" +
+	"\bpassword\x18\x02 \x01(\tR\bpassword\"%\n" +
+	"\rLoginResponse\x12\x14\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token*:\n" +
 	"\bDataType\x12\x0f\n" +
 	"\vUNSPECIFIED\x10\x00\x12\a\n" +
 	"\x03PWD\x10\x01\x12\b\n" +
 	"\x04CARD\x10\x02\x12\n" +
 	"\n" +
-	"\x06BINARY\x10\x032\xe7\x01\n" +
-	"\rKeeperService\x127\n" +
+	"\x06BINARY\x10\x032\xd6\x02\n" +
+	"\rKeeperService\x124\n" +
+	"\x05Login\x12\x14.server.LoginRequest\x1a\x15.server.LoginResponse\x127\n" +
+	"\bRegister\x12\x14.server.LoginRequest\x1a\x15.server.LoginResponse\x127\n" +
 	"\x06Create\x12\x15.server.CreateRequest\x1a\x16.server.CreateResponse\x121\n" +
 	"\x04Read\x12\x13.server.ReadRequest\x1a\x14.server.ReadResponse\x127\n" +
 	"\x06Delete\x12\x15.server.DeleteRequest\x1a\x16.server.DeleteResponse\x121\n" +
@@ -553,7 +656,7 @@ func file_contracts_server_server_proto_rawDescGZIP() []byte {
 }
 
 var file_contracts_server_server_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_contracts_server_server_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_contracts_server_server_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_contracts_server_server_proto_goTypes = []any{
 	(DataType)(0),          // 0: server.DataType
 	(*DataItem)(nil),       // 1: server.DataItem
@@ -565,25 +668,31 @@ var file_contracts_server_server_proto_goTypes = []any{
 	(*DeleteResponse)(nil), // 7: server.DeleteResponse
 	(*ListRequest)(nil),    // 8: server.ListRequest
 	(*ListResponse)(nil),   // 9: server.ListResponse
+	(*LoginRequest)(nil),   // 10: server.LoginRequest
+	(*LoginResponse)(nil),  // 11: server.LoginResponse
 }
 var file_contracts_server_server_proto_depIdxs = []int32{
-	0, // 0: server.DataItem.type:type_name -> server.DataType
-	0, // 1: server.CreateRequest.type:type_name -> server.DataType
-	0, // 2: server.ReadResponse.type:type_name -> server.DataType
-	1, // 3: server.ListResponse.data_list:type_name -> server.DataItem
-	2, // 4: server.KeeperService.Create:input_type -> server.CreateRequest
-	4, // 5: server.KeeperService.Read:input_type -> server.ReadRequest
-	6, // 6: server.KeeperService.Delete:input_type -> server.DeleteRequest
-	8, // 7: server.KeeperService.List:input_type -> server.ListRequest
-	3, // 8: server.KeeperService.Create:output_type -> server.CreateResponse
-	5, // 9: server.KeeperService.Read:output_type -> server.ReadResponse
-	7, // 10: server.KeeperService.Delete:output_type -> server.DeleteResponse
-	9, // 11: server.KeeperService.List:output_type -> server.ListResponse
-	8, // [8:12] is the sub-list for method output_type
-	4, // [4:8] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	0,  // 0: server.DataItem.type:type_name -> server.DataType
+	0,  // 1: server.CreateRequest.type:type_name -> server.DataType
+	0,  // 2: server.ReadResponse.type:type_name -> server.DataType
+	1,  // 3: server.ListResponse.data_list:type_name -> server.DataItem
+	10, // 4: server.KeeperService.Login:input_type -> server.LoginRequest
+	10, // 5: server.KeeperService.Register:input_type -> server.LoginRequest
+	2,  // 6: server.KeeperService.Create:input_type -> server.CreateRequest
+	4,  // 7: server.KeeperService.Read:input_type -> server.ReadRequest
+	6,  // 8: server.KeeperService.Delete:input_type -> server.DeleteRequest
+	8,  // 9: server.KeeperService.List:input_type -> server.ListRequest
+	11, // 10: server.KeeperService.Login:output_type -> server.LoginResponse
+	11, // 11: server.KeeperService.Register:output_type -> server.LoginResponse
+	3,  // 12: server.KeeperService.Create:output_type -> server.CreateResponse
+	5,  // 13: server.KeeperService.Read:output_type -> server.ReadResponse
+	7,  // 14: server.KeeperService.Delete:output_type -> server.DeleteResponse
+	9,  // 15: server.KeeperService.List:output_type -> server.ListResponse
+	10, // [10:16] is the sub-list for method output_type
+	4,  // [4:10] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_contracts_server_server_proto_init() }
@@ -597,7 +706,7 @@ func file_contracts_server_server_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_contracts_server_server_proto_rawDesc), len(file_contracts_server_server_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   9,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
