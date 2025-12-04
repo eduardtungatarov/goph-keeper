@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net"
 
+	"github.com/eduardtungatarov/goph-keeper/internal/config"
+
 	"github.com/eduardtungatarov/goph-keeper/internal/server/handler"
 
 	"go.uber.org/zap"
@@ -17,12 +19,14 @@ import (
 type server struct {
 	log *zap.SugaredLogger
 	h   *handler.Handler
+	cfg *config.Config
 }
 
-func New(log *zap.SugaredLogger, h *handler.Handler) *server {
+func New(log *zap.SugaredLogger, h *handler.Handler, cfg *config.Config) *server {
 	return &server{
 		log: log,
 		h:   h,
+		cfg: cfg,
 	}
 }
 
@@ -33,7 +37,7 @@ func (s *server) Run(ctx context.Context) error {
 	reflection.Register(grpcServer)
 
 	// Открываем порт.
-	lis, err := net.Listen("tcp", ":50051")
+	lis, err := net.Listen("tcp", ":"+s.cfg.GRPCPort)
 	if err != nil {
 		return fmt.Errorf("failed to listen: %w", err)
 	}

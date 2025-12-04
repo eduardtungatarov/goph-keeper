@@ -53,7 +53,7 @@ func main() {
 	// Инициализируем и запускаем grpc сервер.
 	grp.Go(func() error {
 		h := handler.New()
-		s := grpcServer.New(log, h)
+		s := grpcServer.New(log, h, cfg)
 		err := s.Run(ctx)
 		if err != nil {
 			return fmt.Errorf("gRPC server Run error: %w", err)
