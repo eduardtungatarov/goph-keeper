@@ -1,3 +1,9 @@
+up:
+	docker-compose up -d
+
+server:
+	go run cmd/server/main.go
+
 contract-generate:
 	protoc \
       --go_out=./ \
@@ -15,9 +21,6 @@ vet:
 
 test:
 	go test ./...
-
-up:
-	docker-compose up -d
 
 dep:
 	go mod tidy

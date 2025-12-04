@@ -29,7 +29,7 @@ func New(log *zap.SugaredLogger, h *handler.Handler) *server {
 func (s *server) Run(ctx context.Context) error {
 	// Настраиваем.
 	grpcServer := grpc.NewServer()
-	contracts.RegisterKeeperServiceServer(grpcServer, nil)
+	contracts.RegisterKeeperServiceServer(grpcServer, s.h)
 	reflection.Register(grpcServer)
 
 	// Открываем порт.

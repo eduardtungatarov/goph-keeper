@@ -18,6 +18,7 @@ import (
 	"github.com/pressly/goose"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
+	_ "github.com/joho/godotenv/autoload"
 )
 
 func main() {
