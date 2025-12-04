@@ -13,6 +13,8 @@ import (
 	"github.com/eduardtungatarov/goph-keeper/internal/config"
 	grpcServer "github.com/eduardtungatarov/goph-keeper/internal/server/grpc"
 	"github.com/eduardtungatarov/goph-keeper/internal/server/handler"
+	userRepository "github.com/eduardtungatarov/goph-keeper/internal/server/repository/user"
+	authService "github.com/eduardtungatarov/goph-keeper/internal/server/service/auth"
 
 	"github.com/eduardtungatarov/goph-keeper/internal/logger"
 	"github.com/pressly/goose"
@@ -50,9 +52,13 @@ func main() {
 
 	grp, ctx := errgroup.WithContext(ctx)
 
+	// Собираем зависимости.
+	authRepo := userRepository.New(db)
+	authSrv := authService.New(cfg.JWTSecretKey, authRepo)
+
 	// Инициализируем и запускаем grpc сервер.
 	grp.Go(func() error {
-		h := handler.New()
+		h := handler.New(authSrv)
 		s := grpcServer.New(log, h, cfg)
 		err := s.Run(ctx)
 		if err != nil {
