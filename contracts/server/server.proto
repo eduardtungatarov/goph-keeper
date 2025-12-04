@@ -4,14 +4,56 @@ package server;
 
 option go_package = "internal/server/contracts/";
 
-message ExampleRequest {
-  string url = 1;
+enum DataType {
+  UNSPECIFIED = 0;
+  PWD = 1;
+  CARD = 2;
+  BINARY = 3;
 }
 
-message ExampleResponse {
-  string result = 1;
+message DataItem {
+  int64 id = 1;
+  DataType type = 2;
+  bytes data = 3;
+}
+
+message CreateRequest {
+  DataType type = 1;
+  bytes data = 2;
+  string title = 3;
+}
+
+message CreateResponse {
+  bool success = 1;
+}
+
+message ReadRequest {
+   int64 id = 1;
+}
+
+message ReadResponse {
+  DataType type = 1;
+  bytes data = 2;
+}
+
+message DeleteRequest {
+  int64 id = 1;
+}
+
+message DeleteResponse {
+  bool success = 1;
+}
+
+message ListRequest {
+}
+
+message ListResponse {
+  repeated DataItem data_list = 1;
 }
 
 service KeeperService {
-  rpc Example (ExampleRequest) returns (ExampleResponse);
+  rpc Create (CreateRequest) returns (CreateResponse);
+  rpc Read (ReadRequest) returns (ReadResponse);
+  rpc Delete (DeleteRequest) returns (DeleteResponse);
+  rpc List (ListRequest) returns (ListResponse);
 }

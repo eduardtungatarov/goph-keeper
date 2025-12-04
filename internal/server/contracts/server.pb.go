@@ -21,71 +21,141 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type ExampleRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Url           string                 `protobuf:"bytes,1,opt,name=url,proto3" json:"url,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
+type DataType int32
 
-func (x *ExampleRequest) Reset() {
-	*x = ExampleRequest{}
-	mi := &file_contracts_server_server_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
+const (
+	DataType_UNSPECIFIED DataType = 0
+	DataType_PWD         DataType = 1
+	DataType_CARD        DataType = 2
+	DataType_BINARY      DataType = 3
+)
 
-func (x *ExampleRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ExampleRequest) ProtoMessage() {}
-
-func (x *ExampleRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_contracts_server_server_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
+// Enum value maps for DataType.
+var (
+	DataType_name = map[int32]string{
+		0: "UNSPECIFIED",
+		1: "PWD",
+		2: "CARD",
+		3: "BINARY",
 	}
-	return mi.MessageOf(x)
+	DataType_value = map[string]int32{
+		"UNSPECIFIED": 0,
+		"PWD":         1,
+		"CARD":        2,
+		"BINARY":      3,
+	}
+)
+
+func (x DataType) Enum() *DataType {
+	p := new(DataType)
+	*p = x
+	return p
 }
 
-// Deprecated: Use ExampleRequest.ProtoReflect.Descriptor instead.
-func (*ExampleRequest) Descriptor() ([]byte, []int) {
+func (x DataType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (DataType) Descriptor() protoreflect.EnumDescriptor {
+	return file_contracts_server_server_proto_enumTypes[0].Descriptor()
+}
+
+func (DataType) Type() protoreflect.EnumType {
+	return &file_contracts_server_server_proto_enumTypes[0]
+}
+
+func (x DataType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use DataType.Descriptor instead.
+func (DataType) EnumDescriptor() ([]byte, []int) {
 	return file_contracts_server_server_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *ExampleRequest) GetUrl() string {
-	if x != nil {
-		return x.Url
-	}
-	return ""
-}
-
-type ExampleResponse struct {
+type DataItem struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Result        string                 `protobuf:"bytes,1,opt,name=result,proto3" json:"result,omitempty"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Type          DataType               `protobuf:"varint,2,opt,name=type,proto3,enum=server.DataType" json:"type,omitempty"`
+	Data          []byte                 `protobuf:"bytes,3,opt,name=data,proto3" json:"data,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ExampleResponse) Reset() {
-	*x = ExampleResponse{}
+func (x *DataItem) Reset() {
+	*x = DataItem{}
+	mi := &file_contracts_server_server_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DataItem) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DataItem) ProtoMessage() {}
+
+func (x *DataItem) ProtoReflect() protoreflect.Message {
+	mi := &file_contracts_server_server_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DataItem.ProtoReflect.Descriptor instead.
+func (*DataItem) Descriptor() ([]byte, []int) {
+	return file_contracts_server_server_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *DataItem) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *DataItem) GetType() DataType {
+	if x != nil {
+		return x.Type
+	}
+	return DataType_UNSPECIFIED
+}
+
+func (x *DataItem) GetData() []byte {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
+type CreateRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Type          DataType               `protobuf:"varint,1,opt,name=type,proto3,enum=server.DataType" json:"type,omitempty"`
+	Data          []byte                 `protobuf:"bytes,2,opt,name=data,proto3" json:"data,omitempty"`
+	Title         string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateRequest) Reset() {
+	*x = CreateRequest{}
 	mi := &file_contracts_server_server_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ExampleResponse) String() string {
+func (x *CreateRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ExampleResponse) ProtoMessage() {}
+func (*CreateRequest) ProtoMessage() {}
 
-func (x *ExampleResponse) ProtoReflect() protoreflect.Message {
+func (x *CreateRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_contracts_server_server_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -97,29 +167,378 @@ func (x *ExampleResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ExampleResponse.ProtoReflect.Descriptor instead.
-func (*ExampleResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use CreateRequest.ProtoReflect.Descriptor instead.
+func (*CreateRequest) Descriptor() ([]byte, []int) {
 	return file_contracts_server_server_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ExampleResponse) GetResult() string {
+func (x *CreateRequest) GetType() DataType {
 	if x != nil {
-		return x.Result
+		return x.Type
+	}
+	return DataType_UNSPECIFIED
+}
+
+func (x *CreateRequest) GetData() []byte {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
+func (x *CreateRequest) GetTitle() string {
+	if x != nil {
+		return x.Title
 	}
 	return ""
+}
+
+type CreateResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateResponse) Reset() {
+	*x = CreateResponse{}
+	mi := &file_contracts_server_server_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateResponse) ProtoMessage() {}
+
+func (x *CreateResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_contracts_server_server_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateResponse.ProtoReflect.Descriptor instead.
+func (*CreateResponse) Descriptor() ([]byte, []int) {
+	return file_contracts_server_server_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *CreateResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+type ReadRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReadRequest) Reset() {
+	*x = ReadRequest{}
+	mi := &file_contracts_server_server_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReadRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReadRequest) ProtoMessage() {}
+
+func (x *ReadRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_contracts_server_server_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReadRequest.ProtoReflect.Descriptor instead.
+func (*ReadRequest) Descriptor() ([]byte, []int) {
+	return file_contracts_server_server_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *ReadRequest) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+type ReadResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Type          DataType               `protobuf:"varint,1,opt,name=type,proto3,enum=server.DataType" json:"type,omitempty"`
+	Data          []byte                 `protobuf:"bytes,2,opt,name=data,proto3" json:"data,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReadResponse) Reset() {
+	*x = ReadResponse{}
+	mi := &file_contracts_server_server_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReadResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReadResponse) ProtoMessage() {}
+
+func (x *ReadResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_contracts_server_server_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReadResponse.ProtoReflect.Descriptor instead.
+func (*ReadResponse) Descriptor() ([]byte, []int) {
+	return file_contracts_server_server_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ReadResponse) GetType() DataType {
+	if x != nil {
+		return x.Type
+	}
+	return DataType_UNSPECIFIED
+}
+
+func (x *ReadResponse) GetData() []byte {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
+type DeleteRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteRequest) Reset() {
+	*x = DeleteRequest{}
+	mi := &file_contracts_server_server_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteRequest) ProtoMessage() {}
+
+func (x *DeleteRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_contracts_server_server_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteRequest.ProtoReflect.Descriptor instead.
+func (*DeleteRequest) Descriptor() ([]byte, []int) {
+	return file_contracts_server_server_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *DeleteRequest) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+type DeleteResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteResponse) Reset() {
+	*x = DeleteResponse{}
+	mi := &file_contracts_server_server_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteResponse) ProtoMessage() {}
+
+func (x *DeleteResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_contracts_server_server_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteResponse.ProtoReflect.Descriptor instead.
+func (*DeleteResponse) Descriptor() ([]byte, []int) {
+	return file_contracts_server_server_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *DeleteResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+type ListRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListRequest) Reset() {
+	*x = ListRequest{}
+	mi := &file_contracts_server_server_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListRequest) ProtoMessage() {}
+
+func (x *ListRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_contracts_server_server_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListRequest.ProtoReflect.Descriptor instead.
+func (*ListRequest) Descriptor() ([]byte, []int) {
+	return file_contracts_server_server_proto_rawDescGZIP(), []int{7}
+}
+
+type ListResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	DataList      []*DataItem            `protobuf:"bytes,1,rep,name=data_list,json=dataList,proto3" json:"data_list,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListResponse) Reset() {
+	*x = ListResponse{}
+	mi := &file_contracts_server_server_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListResponse) ProtoMessage() {}
+
+func (x *ListResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_contracts_server_server_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListResponse.ProtoReflect.Descriptor instead.
+func (*ListResponse) Descriptor() ([]byte, []int) {
+	return file_contracts_server_server_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *ListResponse) GetDataList() []*DataItem {
+	if x != nil {
+		return x.DataList
+	}
+	return nil
 }
 
 var File_contracts_server_server_proto protoreflect.FileDescriptor
 
 const file_contracts_server_server_proto_rawDesc = "" +
 	"\n" +
-	"\x1dcontracts/server/server.proto\x12\x06server\"\"\n" +
-	"\x0eExampleRequest\x12\x10\n" +
-	"\x03url\x18\x01 \x01(\tR\x03url\")\n" +
-	"\x0fExampleResponse\x12\x16\n" +
-	"\x06result\x18\x01 \x01(\tR\x06result2K\n" +
-	"\rKeeperService\x12:\n" +
-	"\aExample\x12\x16.server.ExampleRequest\x1a\x17.server.ExampleResponseB\x1cZ\x1ainternal/server/contracts/b\x06proto3"
+	"\x1dcontracts/server/server.proto\x12\x06server\"T\n" +
+	"\bDataItem\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12$\n" +
+	"\x04type\x18\x02 \x01(\x0e2\x10.server.DataTypeR\x04type\x12\x12\n" +
+	"\x04data\x18\x03 \x01(\fR\x04data\"_\n" +
+	"\rCreateRequest\x12$\n" +
+	"\x04type\x18\x01 \x01(\x0e2\x10.server.DataTypeR\x04type\x12\x12\n" +
+	"\x04data\x18\x02 \x01(\fR\x04data\x12\x14\n" +
+	"\x05title\x18\x03 \x01(\tR\x05title\"*\n" +
+	"\x0eCreateResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"\x1d\n" +
+	"\vReadRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\"H\n" +
+	"\fReadResponse\x12$\n" +
+	"\x04type\x18\x01 \x01(\x0e2\x10.server.DataTypeR\x04type\x12\x12\n" +
+	"\x04data\x18\x02 \x01(\fR\x04data\"\x1f\n" +
+	"\rDeleteRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\"*\n" +
+	"\x0eDeleteResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\"\r\n" +
+	"\vListRequest\"=\n" +
+	"\fListResponse\x12-\n" +
+	"\tdata_list\x18\x01 \x03(\v2\x10.server.DataItemR\bdataList*:\n" +
+	"\bDataType\x12\x0f\n" +
+	"\vUNSPECIFIED\x10\x00\x12\a\n" +
+	"\x03PWD\x10\x01\x12\b\n" +
+	"\x04CARD\x10\x02\x12\n" +
+	"\n" +
+	"\x06BINARY\x10\x032\xe7\x01\n" +
+	"\rKeeperService\x127\n" +
+	"\x06Create\x12\x15.server.CreateRequest\x1a\x16.server.CreateResponse\x121\n" +
+	"\x04Read\x12\x13.server.ReadRequest\x1a\x14.server.ReadResponse\x127\n" +
+	"\x06Delete\x12\x15.server.DeleteRequest\x1a\x16.server.DeleteResponse\x121\n" +
+	"\x04List\x12\x13.server.ListRequest\x1a\x14.server.ListResponseB\x1cZ\x1ainternal/server/contracts/b\x06proto3"
 
 var (
 	file_contracts_server_server_proto_rawDescOnce sync.Once
@@ -133,19 +552,38 @@ func file_contracts_server_server_proto_rawDescGZIP() []byte {
 	return file_contracts_server_server_proto_rawDescData
 }
 
-var file_contracts_server_server_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_contracts_server_server_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_contracts_server_server_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_contracts_server_server_proto_goTypes = []any{
-	(*ExampleRequest)(nil),  // 0: server.ExampleRequest
-	(*ExampleResponse)(nil), // 1: server.ExampleResponse
+	(DataType)(0),          // 0: server.DataType
+	(*DataItem)(nil),       // 1: server.DataItem
+	(*CreateRequest)(nil),  // 2: server.CreateRequest
+	(*CreateResponse)(nil), // 3: server.CreateResponse
+	(*ReadRequest)(nil),    // 4: server.ReadRequest
+	(*ReadResponse)(nil),   // 5: server.ReadResponse
+	(*DeleteRequest)(nil),  // 6: server.DeleteRequest
+	(*DeleteResponse)(nil), // 7: server.DeleteResponse
+	(*ListRequest)(nil),    // 8: server.ListRequest
+	(*ListResponse)(nil),   // 9: server.ListResponse
 }
 var file_contracts_server_server_proto_depIdxs = []int32{
-	0, // 0: server.KeeperService.Example:input_type -> server.ExampleRequest
-	1, // 1: server.KeeperService.Example:output_type -> server.ExampleResponse
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	0, // 0: server.DataItem.type:type_name -> server.DataType
+	0, // 1: server.CreateRequest.type:type_name -> server.DataType
+	0, // 2: server.ReadResponse.type:type_name -> server.DataType
+	1, // 3: server.ListResponse.data_list:type_name -> server.DataItem
+	2, // 4: server.KeeperService.Create:input_type -> server.CreateRequest
+	4, // 5: server.KeeperService.Read:input_type -> server.ReadRequest
+	6, // 6: server.KeeperService.Delete:input_type -> server.DeleteRequest
+	8, // 7: server.KeeperService.List:input_type -> server.ListRequest
+	3, // 8: server.KeeperService.Create:output_type -> server.CreateResponse
+	5, // 9: server.KeeperService.Read:output_type -> server.ReadResponse
+	7, // 10: server.KeeperService.Delete:output_type -> server.DeleteResponse
+	9, // 11: server.KeeperService.List:output_type -> server.ListResponse
+	8, // [8:12] is the sub-list for method output_type
+	4, // [4:8] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_contracts_server_server_proto_init() }
@@ -158,13 +596,14 @@ func file_contracts_server_server_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_contracts_server_server_proto_rawDesc), len(file_contracts_server_server_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   2,
+			NumEnums:      1,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_contracts_server_server_proto_goTypes,
 		DependencyIndexes: file_contracts_server_server_proto_depIdxs,
+		EnumInfos:         file_contracts_server_server_proto_enumTypes,
 		MessageInfos:      file_contracts_server_server_proto_msgTypes,
 	}.Build()
 	File_contracts_server_server_proto = out.File
