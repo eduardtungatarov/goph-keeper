@@ -7,10 +7,14 @@ type Create struct {
 }
 
 type Read struct {
-	Id int
+	ID int
 }
 
 type ReadResult struct {
 	Type string
 	Data []byte
+}
+
+type Delete struct {
+	ID int
 }

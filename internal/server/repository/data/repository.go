@@ -39,12 +39,12 @@ func (r *Repository) Save(ctx context.Context, data queries.Datum) (queries.Datu
 	return model, err
 }
 
-func (r *Repository) GetByUserIDAndID(ctx context.Context, userID, id int) (queries.Datum, error) {
+func (r *Repository) GetByUserIDAndID(ctx context.Context, userID, ID int) (queries.Datum, error) {
 	const op = "data.Repository.GetByUserIDAndID"
 
 	data, err := r.querier.FindDataByUserIDAndID(ctx, r.db, queries.FindDataByUserIDAndIDParams{
 		UserID: int64(userID),
-		ID:     int64(id),
+		ID:     int64(ID),
 	})
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -54,4 +54,22 @@ func (r *Repository) GetByUserIDAndID(ctx context.Context, userID, id int) (quer
 	}
 
 	return data, nil
+}
+
+func (r *Repository) DeleteByUserIDAndID(ctx context.Context, userID, ID int) error {
+	const op = "data.Repository.DeleteByUserIDAndID"
+
+	rowsAffected, err := r.querier.DeleteDataByUserIDAndID(ctx, r.db, queries.DeleteDataByUserIDAndIDParams{
+		UserID: int64(userID),
+		ID:     int64(ID),
+	})
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("%s: %w", op, repository.ErrNoModel)
+	}
+
+	return nil
 }

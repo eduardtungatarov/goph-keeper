@@ -9,6 +9,11 @@ import (
 )
 
 type Querier interface {
+	//DeleteDataByUserIDAndID
+	//
+	//  DELETE FROM data
+	//  WHERE user_id = $1 AND id = $2
+	DeleteDataByUserIDAndID(ctx context.Context, db DBTX, arg DeleteDataByUserIDAndIDParams) (int64, error)
 	//FindDataByUserIDAndID
 	//
 	//  SELECT id, user_id, title, type, data FROM data

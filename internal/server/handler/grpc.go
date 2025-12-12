@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 
+	"github.com/eduardtungatarov/goph-keeper/internal/server/repository"
+
 	"github.com/eduardtungatarov/goph-keeper/internal/server/service/data/dto"
 
 	"github.com/eduardtungatarov/goph-keeper/internal/server/service/auth"
@@ -22,6 +24,7 @@ type AuthService interface {
 type DataService interface {
 	Create(ctx context.Context, create dto.Create) error
 	Read(ctx context.Context, create dto.Read) (dto.ReadResult, error)
+	Delete(ctx context.Context, read dto.Delete) error
 }
 
 type Handler struct {
@@ -94,13 +97,31 @@ func (h *Handler) Create(ctx context.Context, req *contracts.CreateRequest) (*co
 
 func (h *Handler) Read(ctx context.Context, req *contracts.ReadRequest) (*contracts.ReadResponse, error) {
 	data, err := h.dataService.Read(ctx, dto.Read{
-		Id: int(req.GetId()),
+		ID: int(req.GetId()),
 	})
 	if err != nil {
+		if errors.Is(err, repository.ErrNoModel) {
+			return nil, status.Error(codes.NotFound, "data not found")
+		}
 		return nil, err
 	}
 	return &contracts.ReadResponse{
 		Type: contracts.DataType(contracts.DataType_value[data.Type]),
 		Data: data.Data,
+	}, nil
+}
+
+func (h *Handler) Delete(ctx context.Context, req *contracts.DeleteRequest) (*contracts.DeleteResponse, error) {
+	err := h.dataService.Delete(ctx, dto.Delete{
+		ID: int(req.GetId()),
+	})
+	if err != nil {
+		if errors.Is(err, repository.ErrNoModel) {
+			return nil, status.Error(codes.NotFound, "data not found")
+		}
+		return nil, err
+	}
+	return &contracts.DeleteResponse{
+		Success: true,
 	}, nil
 }

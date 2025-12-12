@@ -7,3 +7,7 @@ RETURNING *;
 SELECT * FROM data
 WHERE user_id = sqlc.arg(user_id) and id = sqlc.arg(id)
 LIMIT 1;
+
+-- name: DeleteDataByUserIDAndID :execrows
+DELETE FROM data
+WHERE user_id = sqlc.arg(user_id) AND id = sqlc.arg(id);

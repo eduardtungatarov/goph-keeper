@@ -9,6 +9,28 @@ import (
 	"context"
 )
 
+const DeleteDataByUserIDAndID = `-- name: DeleteDataByUserIDAndID :execrows
+DELETE FROM data
+WHERE user_id = $1 AND id = $2
+`
+
+type DeleteDataByUserIDAndIDParams struct {
+	UserID int64
+	ID     int64
+}
+
+// DeleteDataByUserIDAndID
+//
+//	DELETE FROM data
+//	WHERE user_id = $1 AND id = $2
+func (q *Queries) DeleteDataByUserIDAndID(ctx context.Context, db DBTX, arg DeleteDataByUserIDAndIDParams) (int64, error) {
+	result, err := db.ExecContext(ctx, DeleteDataByUserIDAndID, arg.UserID, arg.ID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}
+
 const FindDataByUserIDAndID = `-- name: FindDataByUserIDAndID :one
 SELECT id, user_id, title, type, data FROM data
 WHERE user_id = $1 and id = $2

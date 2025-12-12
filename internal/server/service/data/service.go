@@ -14,6 +14,7 @@ import (
 type Repository interface {
 	Save(ctx context.Context, data queries.Datum) (queries.Datum, error)
 	GetByUserIDAndID(ctx context.Context, userID, id int) (queries.Datum, error)
+	DeleteByUserIDAndID(ctx context.Context, userID, id int) error
 }
 
 type Service struct {
@@ -56,7 +57,7 @@ func (s *Service) Read(ctx context.Context, read dto.Read) (dto.ReadResult, erro
 		return dto.ReadResult{}, fmt.Errorf("%s: %w", op, err)
 	}
 
-	data, err := s.repository.GetByUserIDAndID(ctx, userID, read.Id)
+	data, err := s.repository.GetByUserIDAndID(ctx, userID, read.ID)
 	if err != nil {
 		return dto.ReadResult{}, fmt.Errorf("%s: %w", op, err)
 	}
@@ -65,4 +66,20 @@ func (s *Service) Read(ctx context.Context, read dto.Read) (dto.ReadResult, erro
 		Type: data.Type,
 		Data: data.Data,
 	}, nil
+}
+
+func (s *Service) Delete(ctx context.Context, read dto.Delete) error {
+	const op = "data.Service.Delete"
+
+	userID, err := server.GetUserID(ctx)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	err = s.repository.DeleteByUserIDAndID(ctx, userID, read.ID)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
 }
