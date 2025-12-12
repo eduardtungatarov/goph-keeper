@@ -90,6 +90,9 @@ func (h *Handler) Create(ctx context.Context, req *contracts.CreateRequest) (*co
 		Data:  req.GetData(),
 	})
 	if err != nil {
+		if errors.Is(err, repository.ErrDataTooBig) {
+			return nil, status.Error(codes.InvalidArgument, "data too large: maximum size is 1MB")
+		}
 		return nil, err
 	}
 

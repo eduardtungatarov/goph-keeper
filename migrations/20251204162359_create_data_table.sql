@@ -5,7 +5,8 @@ CREATE TABLE IF NOT EXISTS data (
     user_id BIGINT NOT NULL,
     title VARCHAR(255) NOT NULL,
     type VARCHAR(255) NOT NULL,
-    data BYTEA NOT NULL
+    data BYTEA NOT NULL,
+    CONSTRAINT data_size_limit CHECK (octet_length(data) <= 1048576) -- 1 МБ
 );
 
 CREATE INDEX IF NOT EXISTS idx_data_user_id ON data(user_id);

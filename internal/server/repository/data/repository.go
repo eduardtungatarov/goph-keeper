@@ -6,6 +6,8 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/jackc/pgx/v5/pgconn"
+
 	"github.com/eduardtungatarov/goph-keeper/internal/server/repository"
 
 	"github.com/eduardtungatarov/goph-keeper/internal/server/repository/data/queries"
@@ -33,6 +35,12 @@ func (r *Repository) Save(ctx context.Context, data queries.Datum) (queries.Datu
 		Data:   data.Data,
 	})
 	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			if pgErr.Code == "23514" && pgErr.ConstraintName == "data_size_limit" {
+				return queries.Datum{}, repository.ErrDataTooBig
+			}
+		}
 		return queries.Datum{}, fmt.Errorf("%s: %w", op, err)
 	}
 
