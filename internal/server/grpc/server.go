@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net"
 
+	"github.com/eduardtungatarov/goph-keeper/internal/server/interceptor"
+
 	"github.com/eduardtungatarov/goph-keeper/internal/config"
 
 	"github.com/eduardtungatarov/goph-keeper/internal/server/handler"
@@ -20,19 +22,21 @@ type server struct {
 	log *zap.SugaredLogger
 	h   *handler.Handler
 	cfg *config.Config
+	i   *interceptor.Interceptor
 }
 
-func New(log *zap.SugaredLogger, h *handler.Handler, cfg *config.Config) *server {
+func New(log *zap.SugaredLogger, h *handler.Handler, cfg *config.Config, i *interceptor.Interceptor) *server {
 	return &server{
 		log: log,
 		h:   h,
 		cfg: cfg,
+		i:   i,
 	}
 }
 
 func (s *server) Run(ctx context.Context) error {
 	// Настраиваем.
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(s.i.AuthInterceptor))
 	contracts.RegisterKeeperServiceServer(grpcServer, s.h)
 	reflection.Register(grpcServer)
 

@@ -8,6 +8,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/eduardtungatarov/goph-keeper/internal/server/interceptor"
+
 	"golang.org/x/sync/errgroup"
 
 	"github.com/eduardtungatarov/goph-keeper/internal/config"
@@ -66,7 +68,8 @@ func main() {
 			authSrv,
 			dataSrv,
 		)
-		s := grpcServer.New(log, h, cfg)
+		i := interceptor.New(authSrv)
+		s := grpcServer.New(log, h, cfg, i)
 		err := s.Run(ctx)
 		if err != nil {
 			return fmt.Errorf("gRPC server Run error: %w", err)

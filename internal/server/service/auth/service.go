@@ -12,8 +12,11 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
+type UserIDKey string
+
 const (
-	tokenLifeTime = 24 * time.Hour
+	UserIDKeyName UserIDKey = "userId"
+	tokenLifeTime           = 24 * time.Hour
 )
 
 var ErrLoginPwd = errors.New("invalid username/password pair")
