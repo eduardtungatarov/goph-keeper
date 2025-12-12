@@ -13,8 +13,10 @@ import (
 	"github.com/eduardtungatarov/goph-keeper/internal/config"
 	grpcServer "github.com/eduardtungatarov/goph-keeper/internal/server/grpc"
 	"github.com/eduardtungatarov/goph-keeper/internal/server/handler"
+	dataRepository "github.com/eduardtungatarov/goph-keeper/internal/server/repository/data"
 	userRepository "github.com/eduardtungatarov/goph-keeper/internal/server/repository/user"
 	authService "github.com/eduardtungatarov/goph-keeper/internal/server/service/auth"
+	dataService "github.com/eduardtungatarov/goph-keeper/internal/server/service/data"
 
 	"github.com/eduardtungatarov/goph-keeper/internal/logger"
 	"github.com/pressly/goose"
@@ -55,10 +57,15 @@ func main() {
 	// Собираем зависимости.
 	authRepo := userRepository.New(db)
 	authSrv := authService.New(cfg.JWTSecretKey, authRepo)
+	dataRepo := dataRepository.New(db)
+	dataSrv := dataService.New(dataRepo)
 
 	// Инициализируем и запускаем grpc сервер.
 	grp.Go(func() error {
-		h := handler.New(authSrv)
+		h := handler.New(
+			authSrv,
+			dataSrv,
+		)
 		s := grpcServer.New(log, h, cfg)
 		err := s.Run(ctx)
 		if err != nil {

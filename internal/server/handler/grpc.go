@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 
+	"github.com/eduardtungatarov/goph-keeper/internal/server/service/data/dto"
+
 	"github.com/eduardtungatarov/goph-keeper/internal/server/service/auth"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -17,16 +19,23 @@ type AuthService interface {
 	Login(ctx context.Context, login, pwd string) (string, error)
 }
 
+type DataService interface {
+	Create(ctx context.Context, create dto.Create) error
+}
+
 type Handler struct {
 	contracts.UnimplementedKeeperServiceServer
 	authService AuthService
+	dataService DataService
 }
 
 func New(
 	authService AuthService,
+	dataService DataService,
 ) *Handler {
 	return &Handler{
 		authService: authService,
+		dataService: dataService,
 	}
 }
 
@@ -64,5 +73,20 @@ func (h *Handler) Login(ctx context.Context, req *contracts.LoginRequest) (*cont
 
 	return &contracts.LoginResponse{
 		Token: token,
+	}, nil
+}
+
+func (h *Handler) Create(ctx context.Context, req *contracts.CreateRequest) (*contracts.CreateResponse, error) {
+	err := h.dataService.Create(ctx, dto.Create{
+		Type:  req.GetType().String(),
+		Title: req.GetTitle(),
+		Data:  req.GetData(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &contracts.CreateResponse{
+		Success: true,
 	}, nil
 }

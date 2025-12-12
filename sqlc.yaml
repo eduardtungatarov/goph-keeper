@@ -18,3 +18,10 @@ sql:
         overrides:
           - db_type: "pg_catalog.int4"
             go_type: "int"
+  # Для Data
+  - <<: *base_settings
+    queries: "queries/data.sql"
+    gen:
+      go:
+        <<: *gen_settings
+        out: "internal/server/repository/data/queries"
