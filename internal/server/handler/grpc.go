@@ -21,6 +21,7 @@ type AuthService interface {
 
 type DataService interface {
 	Create(ctx context.Context, create dto.Create) error
+	Read(ctx context.Context, create dto.Read) (dto.ReadResult, error)
 }
 
 type Handler struct {
@@ -88,5 +89,18 @@ func (h *Handler) Create(ctx context.Context, req *contracts.CreateRequest) (*co
 
 	return &contracts.CreateResponse{
 		Success: true,
+	}, nil
+}
+
+func (h *Handler) Read(ctx context.Context, req *contracts.ReadRequest) (*contracts.ReadResponse, error) {
+	data, err := h.dataService.Read(ctx, dto.Read{
+		Id: int(req.GetId()),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &contracts.ReadResponse{
+		Type: contracts.DataType(contracts.DataType_value[data.Type]),
+		Data: data.Data,
 	}, nil
 }

@@ -5,3 +5,12 @@ type Create struct {
 	Data  []byte
 	Title string
 }
+
+type Read struct {
+	Id int
+}
+
+type ReadResult struct {
+	Type string
+	Data []byte
+}

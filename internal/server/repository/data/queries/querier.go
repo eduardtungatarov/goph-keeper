@@ -9,6 +9,12 @@ import (
 )
 
 type Querier interface {
+	//FindDataByUserIDAndID
+	//
+	//  SELECT id, user_id, title, type, data FROM data
+	//  WHERE user_id = $1 and id = $2
+	//  LIMIT 1
+	FindDataByUserIDAndID(ctx context.Context, db DBTX, arg FindDataByUserIDAndIDParams) (Datum, error)
 	//SaveData
 	//
 	//  INSERT INTO data (user_id, title, type, data)

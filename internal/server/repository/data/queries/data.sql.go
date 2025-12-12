@@ -9,6 +9,35 @@ import (
 	"context"
 )
 
+const FindDataByUserIDAndID = `-- name: FindDataByUserIDAndID :one
+SELECT id, user_id, title, type, data FROM data
+WHERE user_id = $1 and id = $2
+LIMIT 1
+`
+
+type FindDataByUserIDAndIDParams struct {
+	UserID int64
+	ID     int64
+}
+
+// FindDataByUserIDAndID
+//
+//	SELECT id, user_id, title, type, data FROM data
+//	WHERE user_id = $1 and id = $2
+//	LIMIT 1
+func (q *Queries) FindDataByUserIDAndID(ctx context.Context, db DBTX, arg FindDataByUserIDAndIDParams) (Datum, error) {
+	row := db.QueryRowContext(ctx, FindDataByUserIDAndID, arg.UserID, arg.ID)
+	var i Datum
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Title,
+		&i.Type,
+		&i.Data,
+	)
+	return i, err
+}
+
 const SaveData = `-- name: SaveData :one
 INSERT INTO data (user_id, title, type, data)
 VALUES ($1, $2, $3, $4)
