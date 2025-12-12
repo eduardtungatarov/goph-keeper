@@ -2,8 +2,12 @@ package grpc
 
 import (
 	"context"
+	"crypto/tls"
+	"encoding/base64"
 	"fmt"
 	"net"
+
+	"google.golang.org/grpc/credentials"
 
 	"github.com/eduardtungatarov/goph-keeper/internal/server/interceptor"
 
@@ -35,8 +39,30 @@ func New(log *zap.SugaredLogger, h *handler.Handler, cfg *config.Config, i *inte
 }
 
 func (s *server) Run(ctx context.Context) error {
+	// Настройки tls.
+	certBytes, err := base64.StdEncoding.DecodeString(s.cfg.ServerCert)
+	if err != nil {
+		return err
+	}
+	keyBytes, err := base64.StdEncoding.DecodeString(s.cfg.ServerKey)
+	if err != nil {
+		return err
+	}
+	serverCert, err := tls.X509KeyPair(certBytes, keyBytes)
+	if err != nil {
+		return err
+	}
+	tlsConfig := &tls.Config{
+		Certificates: []tls.Certificate{serverCert},
+		MinVersion:   tls.VersionTLS12,
+	}
+	creds := credentials.NewTLS(tlsConfig)
+
 	// Настраиваем.
-	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(s.i.AuthInterceptor))
+	grpcServer := grpc.NewServer(
+		grpc.Creds(creds),
+		grpc.UnaryInterceptor(s.i.AuthInterceptor),
+	)
 	contracts.RegisterKeeperServiceServer(grpcServer, s.h)
 	reflection.Register(grpcServer)
 
