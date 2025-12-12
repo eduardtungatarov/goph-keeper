@@ -73,3 +73,14 @@ func (r *Repository) DeleteByUserIDAndID(ctx context.Context, userID, ID int) er
 
 	return nil
 }
+
+func (r *Repository) ListByUserID(ctx context.Context, userID int) ([]queries.Datum, error) {
+	const op = "data.Repository.ListByUserID"
+
+	datas, err := r.querier.FindDataByUserID(ctx, r.db, int64(userID))
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return datas, nil
+}

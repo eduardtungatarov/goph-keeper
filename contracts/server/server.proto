@@ -15,6 +15,7 @@ message DataItem {
   int64 id = 1;
   DataType type = 2;
   bytes data = 3;
+  string title = 4;
 }
 
 message CreateRequest {

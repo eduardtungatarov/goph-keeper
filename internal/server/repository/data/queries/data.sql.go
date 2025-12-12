@@ -31,6 +31,44 @@ func (q *Queries) DeleteDataByUserIDAndID(ctx context.Context, db DBTX, arg Dele
 	return result.RowsAffected()
 }
 
+const FindDataByUserID = `-- name: FindDataByUserID :many
+SELECT id, user_id, title, type, data FROM data
+WHERE user_id = $1
+`
+
+// FindDataByUserID
+//
+//	SELECT id, user_id, title, type, data FROM data
+//	WHERE user_id = $1
+func (q *Queries) FindDataByUserID(ctx context.Context, db DBTX, userID int64) ([]Datum, error) {
+	rows, err := db.QueryContext(ctx, FindDataByUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Datum
+	for rows.Next() {
+		var i Datum
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Title,
+			&i.Type,
+			&i.Data,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const FindDataByUserIDAndID = `-- name: FindDataByUserIDAndID :one
 SELECT id, user_id, title, type, data FROM data
 WHERE user_id = $1 and id = $2

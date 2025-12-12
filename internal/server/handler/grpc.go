@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 
+	"github.com/eduardtungatarov/goph-keeper/internal/server/repository/data/queries"
+
 	"github.com/eduardtungatarov/goph-keeper/internal/server/repository"
 
 	"github.com/eduardtungatarov/goph-keeper/internal/server/service/data/dto"
@@ -25,6 +27,7 @@ type DataService interface {
 	Create(ctx context.Context, create dto.Create) error
 	Read(ctx context.Context, create dto.Read) (dto.ReadResult, error)
 	Delete(ctx context.Context, read dto.Delete) error
+	List(ctx context.Context) ([]queries.Datum, error)
 }
 
 type Handler struct {
@@ -123,5 +126,27 @@ func (h *Handler) Delete(ctx context.Context, req *contracts.DeleteRequest) (*co
 	}
 	return &contracts.DeleteResponse{
 		Success: true,
+	}, nil
+}
+
+func (h *Handler) List(ctx context.Context, _ *contracts.ListRequest) (*contracts.ListResponse, error) {
+	datas, err := h.dataService.List(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var dataList []*contracts.DataItem
+
+	for _, v := range datas {
+		dataList = append(dataList, &contracts.DataItem{
+			Id:    v.ID,
+			Type:  contracts.DataType(contracts.DataType_value[v.Type]),
+			Data:  v.Data,
+			Title: v.Title,
+		})
+	}
+
+	return &contracts.ListResponse{
+		DataList: dataList,
 	}, nil
 }

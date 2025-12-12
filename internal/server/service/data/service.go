@@ -15,6 +15,7 @@ type Repository interface {
 	Save(ctx context.Context, data queries.Datum) (queries.Datum, error)
 	GetByUserIDAndID(ctx context.Context, userID, id int) (queries.Datum, error)
 	DeleteByUserIDAndID(ctx context.Context, userID, id int) error
+	ListByUserID(ctx context.Context, userID int) ([]queries.Datum, error)
 }
 
 type Service struct {
@@ -82,4 +83,15 @@ func (s *Service) Delete(ctx context.Context, read dto.Delete) error {
 	}
 
 	return nil
+}
+
+func (s *Service) List(ctx context.Context) ([]queries.Datum, error) {
+	const op = "data.Service.List"
+
+	userID, err := server.GetUserID(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return s.repository.ListByUserID(ctx, userID)
 }
