@@ -18,13 +18,20 @@ type Repository interface {
 	ListByUserID(ctx context.Context, userID int) ([]queries.Datum, error)
 }
 
-type Service struct {
-	repository Repository
+type SecurityService interface {
+	GetEncrypted(ctx context.Context, data []byte) ([]byte, error)
+	GetDecrypted(ctx context.Context, data []byte) ([]byte, error)
 }
 
-func New(repository Repository) *Service {
+type Service struct {
+	repository      Repository
+	securityService SecurityService
+}
+
+func New(repository Repository, securityService SecurityService) *Service {
 	return &Service{
-		repository: repository,
+		repository:      repository,
+		securityService: securityService,
 	}
 }
 
@@ -36,11 +43,16 @@ func (s *Service) Create(ctx context.Context, read dto.Create) error {
 		return fmt.Errorf("%s: %w", op, err)
 	}
 
+	encryptedData, err := s.securityService.GetEncrypted(ctx, read.Data)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
 	model := queries.Datum{
 		UserID: int64(userID),
 		Type:   read.Type,
 		Title:  read.Title,
-		Data:   read.Data,
+		Data:   encryptedData,
 	}
 	_, err = s.repository.Save(ctx, model)
 	if err != nil {
@@ -63,9 +75,14 @@ func (s *Service) Read(ctx context.Context, read dto.Read) (dto.ReadResult, erro
 		return dto.ReadResult{}, fmt.Errorf("%s: %w", op, err)
 	}
 
+	decryptedData, err := s.securityService.GetDecrypted(ctx, data.Data)
+	if err != nil {
+		return dto.ReadResult{}, fmt.Errorf("%s: %w", op, err)
+	}
+
 	return dto.ReadResult{
 		Type: data.Type,
-		Data: data.Data,
+		Data: decryptedData,
 	}, nil
 }
 
@@ -93,5 +110,18 @@ func (s *Service) List(ctx context.Context) ([]queries.Datum, error) {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	return s.repository.ListByUserID(ctx, userID)
+	datas, err := s.repository.ListByUserID(ctx, userID)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	for i := range datas {
+		decryptedData, err := s.securityService.GetDecrypted(ctx, datas[i].Data)
+		if err != nil {
+			return nil, fmt.Errorf("%s: %w", op, err)
+		}
+		datas[i].Data = decryptedData
+	}
+
+	return datas, nil
 }

@@ -8,6 +8,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/eduardtungatarov/goph-keeper/internal/server/service/security"
+
 	"github.com/eduardtungatarov/goph-keeper/internal/server/interceptor"
 
 	"golang.org/x/sync/errgroup"
@@ -59,8 +61,9 @@ func main() {
 	// Собираем зависимости.
 	authRepo := userRepository.New(db)
 	authSrv := authService.New(cfg.JWTSecretKey, authRepo)
+	secSrv := security.New([]byte(cfg.DataEncryptKey))
 	dataRepo := dataRepository.New(db)
-	dataSrv := dataService.New(dataRepo)
+	dataSrv := dataService.New(dataRepo, secSrv)
 
 	// Инициализируем и запускаем grpc сервер.
 	grp.Go(func() error {
