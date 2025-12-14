@@ -4,10 +4,14 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/eduardtungatarov/goph-keeper/internal/client/handler"
+
+	"github.com/eduardtungatarov/goph-keeper/internal/client/command"
+
 	"github.com/eduardtungatarov/goph-keeper/internal/client/config"
 	"github.com/eduardtungatarov/goph-keeper/internal/client/grpcclient"
-	"github.com/eduardtungatarov/goph-keeper/internal/client/handler"
 	"github.com/eduardtungatarov/goph-keeper/internal/logger"
+	"github.com/spf13/cobra"
 )
 
 func main() {
@@ -22,12 +26,35 @@ func main() {
 	cfg := config.Load()
 
 	// Инициализируем grpc клиент.
-	c, err := grpcclient.New(cfg)
+	client, err := grpcclient.New(cfg)
 	if err != nil {
 		log.Fatalf("Failed to init grpc client: %v", err)
 	}
-	defer c.Close()
+	defer client.Close()
 
 	// Обработчики команд.
-	_ = handler.New(c)
+	h := handler.New(client)
+
+	// Команды.
+	c := command.New(h)
+
+	// Создаем root команду
+	rootCmd := &cobra.Command{
+		Use:   "keeper",
+		Short: "Goph Keeper CLI client",
+	}
+
+	// Добавляем команды
+	rootCmd.AddCommand(
+		c.LoginCmd(),
+		c.RegisterCmd(),
+		c.CreateCmd(),
+		c.ReadCmd(),
+		c.DeleteCmd(),
+		c.ListCmd(),
+	)
+
+	if err := rootCmd.Execute(); err != nil {
+		log.Fatalf("Failed to execute command: %v", err)
+	}
 }
