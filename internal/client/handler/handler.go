@@ -1,6 +1,12 @@
 package handler
 
 import (
+	"context"
+	"fmt"
+	"log"
+
+	"github.com/eduardtungatarov/goph-keeper/internal/server/contracts"
+
 	"github.com/eduardtungatarov/goph-keeper/internal/client/grpcclient"
 )
 
@@ -15,7 +21,14 @@ func New(client *grpcclient.Client) *Handler {
 }
 
 func (h *Handler) HandleLogin(login, password string) {
-	//
+	resp, err := h.Client.C.Login(context.Background(), &contracts.LoginRequest{
+		Login:    login,
+		Password: password,
+	})
+	if err != nil {
+		log.Fatalf("Login failed: %v", err)
+	}
+	fmt.Printf("✅ Login successful. Token: %s\n", resp.Token)
 }
 
 func (h *Handler) HandleRegister(login, password string) {

@@ -27,7 +27,7 @@ func (c *Command) LoginCmd() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			login = args[0]
-			// c.h.HandleLogin(login, password)
+			c.h.HandleLogin(login, password)
 		},
 	}
 
@@ -38,7 +38,7 @@ func (c *Command) LoginCmd() *cobra.Command {
 	return cmd
 }
 
-func (h *Command) RegisterCmd() *cobra.Command {
+func (c *Command) RegisterCmd() *cobra.Command {
 	var login, password string
 
 	cmd := &cobra.Command{
@@ -47,7 +47,7 @@ func (h *Command) RegisterCmd() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			login = args[0]
-			// h.Commandegister(login, password)
+			c.h.HandleLogin(login, password)
 		},
 	}
 

@@ -8,25 +8,26 @@ import (
 )
 
 type Client struct {
-	cfg  *config.Config
-	conn *grpc.ClientConn
-	c    contracts.KeeperServiceClient
+	Cfg  *config.Config
+	Conn *grpc.ClientConn
+	C    contracts.KeeperServiceClient
 }
 
 func New(cfg *config.Config) (*Client, error) {
 	client := &Client{
-		cfg: cfg,
+		Cfg: cfg,
 	}
 
 	conn, err := grpc.NewClient(cfg.ServerAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}
-	client.c = contracts.NewKeeperServiceClient(conn)
+	client.Conn = conn
+	client.C = contracts.NewKeeperServiceClient(conn)
 
 	return client, nil
 }
 
 func (c *Client) Close() error {
-	return c.conn.Close()
+	return c.Conn.Close()
 }
