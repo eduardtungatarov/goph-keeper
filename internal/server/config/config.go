@@ -4,7 +4,7 @@ import "os"
 
 type Config struct {
 	DatabaseDSN    string
-	GRPCPort       string
+	ServerAddress  string
 	JWTSecretKey   string
 	DataEncryptKey string
 	ServerCert     string
@@ -13,7 +13,7 @@ type Config struct {
 
 func Load() *Config {
 	dsn, _ := os.LookupEnv("DATABASE_DSN")
-	grpcPort, _ := os.LookupEnv("GRPC_PORT")
+	serverAddress, _ := os.LookupEnv("SERVER_ADDRESS")
 	JWTSecretKey, _ := os.LookupEnv("JWT_SECRET_KEY")
 	dataEncryptKey, _ := os.LookupEnv("DATA_ENCRYPT_KEY")
 	servertCert, _ := os.LookupEnv("SERVER_CERT")
@@ -21,7 +21,7 @@ func Load() *Config {
 
 	return &Config{
 		DatabaseDSN:    dsn,
-		GRPCPort:       grpcPort,
+		ServerAddress:  serverAddress,
 		JWTSecretKey:   JWTSecretKey,
 		DataEncryptKey: dataEncryptKey,
 		ServerKey:      serverKey,

@@ -66,7 +66,7 @@ func (s *server) Run(ctx context.Context) error {
 	reflection.Register(grpcServer)
 
 	// Открываем порт.
-	lis, err := net.Listen("tcp", ":"+s.cfg.GRPCPort)
+	lis, err := net.Listen("tcp", s.cfg.ServerAddress)
 	if err != nil {
 		return fmt.Errorf("failed to listen: %w", err)
 	}
