@@ -8,13 +8,13 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/eduardtungatarov/goph-keeper/internal/server/config"
 	"github.com/eduardtungatarov/goph-keeper/internal/server/service/security"
 
 	"github.com/eduardtungatarov/goph-keeper/internal/server/interceptor"
 
 	"golang.org/x/sync/errgroup"
 
-	"github.com/eduardtungatarov/goph-keeper/internal/config"
 	grpcServer "github.com/eduardtungatarov/goph-keeper/internal/server/grpc"
 	"github.com/eduardtungatarov/goph-keeper/internal/server/handler"
 	dataRepository "github.com/eduardtungatarov/goph-keeper/internal/server/repository/data"

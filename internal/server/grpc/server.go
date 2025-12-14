@@ -9,9 +9,8 @@ import (
 
 	"google.golang.org/grpc/credentials"
 
+	"github.com/eduardtungatarov/goph-keeper/internal/server/config"
 	"github.com/eduardtungatarov/goph-keeper/internal/server/interceptor"
-
-	"github.com/eduardtungatarov/goph-keeper/internal/config"
 
 	"github.com/eduardtungatarov/goph-keeper/internal/server/handler"
 
