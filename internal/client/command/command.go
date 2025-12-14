@@ -47,7 +47,7 @@ func (c *Command) RegisterCmd() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			login = args[0]
-			c.h.HandleLogin(login, password)
+			c.h.HandleRegister(login, password)
 		},
 	}
 

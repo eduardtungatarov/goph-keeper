@@ -1,17 +1,26 @@
 package main
 
 import (
+	"crypto/tls"
+	"encoding/base64"
 	"fmt"
 	"os"
+
+	"google.golang.org/grpc/credentials"
+
+	"github.com/eduardtungatarov/goph-keeper/internal/server/contracts"
+
+	"google.golang.org/grpc"
 
 	"github.com/eduardtungatarov/goph-keeper/internal/client/handler"
 
 	"github.com/eduardtungatarov/goph-keeper/internal/client/command"
 
 	"github.com/eduardtungatarov/goph-keeper/internal/client/config"
-	"github.com/eduardtungatarov/goph-keeper/internal/client/grpcclient"
 	"github.com/eduardtungatarov/goph-keeper/internal/logger"
 	"github.com/spf13/cobra"
+
+	_ "github.com/joho/godotenv/autoload"
 )
 
 func main() {
@@ -26,11 +35,22 @@ func main() {
 	cfg := config.Load()
 
 	// Инициализируем grpc клиент.
-	client, err := grpcclient.New(cfg)
+	certBytes, _ := base64.StdEncoding.DecodeString(cfg.ServerCert)
+	serverCert, _ := tls.X509KeyPair(certBytes, []byte{})
+	conn, err := grpc.NewClient(
+		cfg.ServerAddress,
+		grpc.WithTransportCredentials(
+			credentials.NewTLS(&tls.Config{
+				Certificates:       []tls.Certificate{serverCert},
+				InsecureSkipVerify: true,
+			}),
+		),
+	)
 	if err != nil {
 		log.Fatalf("Failed to init grpc client: %v", err)
 	}
-	defer client.Close()
+	defer conn.Close()
+	client := contracts.NewKeeperServiceClient(conn)
 
 	// Обработчики команд.
 	h := handler.New(client)
