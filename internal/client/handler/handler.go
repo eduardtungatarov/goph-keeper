@@ -57,12 +57,14 @@ func (h *Handler) HandleRegister(login, password string) {
 }
 
 func (h *Handler) HandleCreate(dataTypeStr, data, title string) {
+	ctx := h.withAuth(context.Background())
+
 	dataType, ok := h.parseDataType(dataTypeStr)
 	if !ok {
 		log.Fatalf("Invalid type: %s. Use: pwd, card, binary", dataTypeStr)
 	}
 
-	resp, err := h.Client.Create(context.Background(), &contracts.CreateRequest{
+	resp, err := h.Client.Create(ctx, &contracts.CreateRequest{
 		Type:  dataType,
 		Data:  []byte(data),
 		Title: title,

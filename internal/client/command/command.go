@@ -58,7 +58,7 @@ func (c *Command) RegisterCmd() *cobra.Command {
 	return cmd
 }
 
-func (h *Command) CreateCmd() *cobra.Command {
+func (c *Command) CreateCmd() *cobra.Command {
 	var dataType, data, title string
 
 	cmd := &cobra.Command{
@@ -67,7 +67,7 @@ func (h *Command) CreateCmd() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			dataType = args[0]
-			// h.handleCreate(dataType, data, title)
+			c.h.HandleCreate(dataType, data, title)
 		},
 	}
 

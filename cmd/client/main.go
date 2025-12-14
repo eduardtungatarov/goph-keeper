@@ -3,8 +3,7 @@ package main
 import (
 	"crypto/tls"
 	"encoding/base64"
-	"fmt"
-	"os"
+	"log"
 
 	"google.golang.org/grpc/credentials"
 
@@ -17,20 +16,12 @@ import (
 	"github.com/eduardtungatarov/goph-keeper/internal/client/command"
 
 	"github.com/eduardtungatarov/goph-keeper/internal/client/config"
-	"github.com/eduardtungatarov/goph-keeper/internal/logger"
 	"github.com/spf13/cobra"
 
 	_ "github.com/joho/godotenv/autoload"
 )
 
 func main() {
-	// Логер.
-	log, err := logger.Init()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to initialize logger: %v", err)
-		os.Exit(1)
-	}
-
 	// Инициализируем конфиг.
 	cfg := config.Load()
 
