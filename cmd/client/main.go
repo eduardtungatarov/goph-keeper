@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/tls"
 	"encoding/base64"
+	"fmt"
 	"log"
 
 	"google.golang.org/grpc/credentials"
@@ -19,6 +20,11 @@ import (
 	"github.com/spf13/cobra"
 
 	_ "github.com/joho/godotenv/autoload"
+)
+
+var (
+	version   = "dev"
+	buildDate = "unknown"
 )
 
 func main() {
@@ -55,8 +61,18 @@ func main() {
 		Short: "Goph Keeper CLI client",
 	}
 
+	rootCmd.Version = fmt.Sprintf("%s (built %s)", version, buildDate)
+	rootCmd.SetVersionTemplate("{{.Version}}\n")
+
 	// Добавляем команды
 	rootCmd.AddCommand(
+		&cobra.Command{
+			Use:   "version",
+			Short: "Show version info",
+			Run: func(cmd *cobra.Command, args []string) {
+				fmt.Printf("Keeper %s (built %s)\n", version, buildDate)
+			},
+		},
 		c.LoginCmd(),
 		c.RegisterCmd(),
 		c.CreateCmd(),

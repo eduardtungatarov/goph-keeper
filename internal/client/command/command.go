@@ -1,7 +1,10 @@
 package command
 
 import (
+	"bufio"
 	"fmt"
+	"os"
+	"strings"
 
 	"github.com/eduardtungatarov/goph-keeper/internal/client/handler"
 
@@ -59,19 +62,89 @@ func (c *Command) RegisterCmd() *cobra.Command {
 }
 
 func (c *Command) CreateCmd() *cobra.Command {
-	var dataType, data, title string
-
 	cmd := &cobra.Command{
-		Use:   "create [TYPE]",
+		Use:   "create",
 		Short: "Create new data item",
-		Args:  cobra.ExactArgs(1),
+	}
+
+	cmd.AddCommand(
+		c.createPwdCmd(),
+		c.createCardCmd(),
+		c.createBinaryCmd(),
+	)
+
+	return cmd
+}
+
+func (c *Command) createPwdCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "pwd",
+		Short: "Create password item",
 		Run: func(cmd *cobra.Command, args []string) {
-			dataType = args[0]
-			c.h.HandleCreate(dataType, data, title)
+			reader := bufio.NewReader(os.Stdin)
+
+			fmt.Print("Title: ")
+			title, _ := reader.ReadString('\n')
+			title = strings.TrimSpace(title)
+
+			fmt.Print("Login: ")
+			login, _ := reader.ReadString('\n')
+			login = strings.TrimSpace(login)
+
+			fmt.Print("Password: ")
+			password, _ := reader.ReadString('\n')
+			password = strings.TrimSpace(password)
+
+			data := login + "|" + password
+			c.h.HandleCreate("pwd", data, title)
 		},
 	}
 
-	cmd.Flags().StringVarP(&dataType, "type", "t", "", "Data type: pwd, card, binary")
+	return cmd
+}
+
+func (c *Command) createCardCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "card",
+		Short: "Create card item",
+		Run: func(cmd *cobra.Command, args []string) {
+			reader := bufio.NewReader(os.Stdin)
+
+			fmt.Print("Title: ")
+			title, _ := reader.ReadString('\n')
+			title = strings.TrimSpace(title)
+
+			fmt.Print("Card number: ")
+			number, _ := reader.ReadString('\n')
+			number = strings.TrimSpace(number)
+
+			fmt.Print("Expiry (MM/YY): ")
+			exp, _ := reader.ReadString('\n')
+			exp = strings.TrimSpace(exp)
+
+			fmt.Print("CVV: ")
+			cvv, _ := reader.ReadString('\n')
+			cvv = strings.TrimSpace(cvv)
+
+			data := number + "|" + exp + "|" + cvv
+			c.h.HandleCreate("card", data, title)
+		},
+	}
+
+	return cmd
+}
+
+func (c *Command) createBinaryCmd() *cobra.Command {
+	var data, title string
+
+	cmd := &cobra.Command{
+		Use:   "binary",
+		Short: "Create binary item",
+		Run: func(cmd *cobra.Command, args []string) {
+			c.h.HandleCreate("binary", data, title)
+		},
+	}
+
 	cmd.Flags().StringVarP(&data, "data", "d", "", "Data content")
 	cmd.Flags().StringVarP(&title, "title", "T", "", "Item title")
 	cmd.MarkFlagRequired("data")
@@ -80,50 +153,40 @@ func (c *Command) CreateCmd() *cobra.Command {
 	return cmd
 }
 
-func (h *Command) ReadCmd() *cobra.Command {
-	var id int64
-
+func (c *Command) ReadCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "read [ID]",
 		Short: "Read data item by ID",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
+			var id int64
 			fmt.Sscanf(args[0], "%d", &id)
-			// h.Commandead(id)
+			c.h.HandleRead(id)
 		},
 	}
-
-	cmd.Flags().Int64VarP(&id, "id", "i", 0, "Data item ID")
-	cmd.MarkFlagRequired("id")
-
 	return cmd
 }
 
-func (h *Command) DeleteCmd() *cobra.Command {
-	var id int64
-
+func (c *Command) DeleteCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "delete [ID]",
 		Short: "Delete data item by ID",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
+			var id int64
 			fmt.Sscanf(args[0], "%d", &id)
-			// h.handleDelete(id)
+			c.h.HandleDelete(id)
 		},
 	}
-
-	cmd.Flags().Int64VarP(&id, "id", "i", 0, "Data item ID")
-	cmd.MarkFlagRequired("id")
-
 	return cmd
 }
 
-func (h *Command) ListCmd() *cobra.Command {
+func (c *Command) ListCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "List all data items",
 		Run: func(cmd *cobra.Command, args []string) {
-			// h.handleList()
+			c.h.HandleList()
 		},
 	}
 

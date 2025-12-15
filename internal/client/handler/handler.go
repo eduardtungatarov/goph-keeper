@@ -82,7 +82,9 @@ func (h *Handler) HandleCreate(dataTypeStr, data, title string) {
 }
 
 func (h *Handler) HandleRead(id int64) {
-	resp, err := h.Client.Read(context.Background(), &contracts.ReadRequest{
+	ctx := h.withAuth(context.Background())
+
+	resp, err := h.Client.Read(ctx, &contracts.ReadRequest{
 		Id: id,
 	})
 	if err != nil {
@@ -93,11 +95,12 @@ func (h *Handler) HandleRead(id int64) {
 	fmt.Printf("ID: %d\n", id)
 	fmt.Printf("Type: %s\n", resp.Type.String())
 	fmt.Printf("Data: %s\n", string(resp.Data))
-	// TODO: title если добавишь в ReadResponse
 }
 
 func (h *Handler) HandleDelete(id int64) {
-	resp, err := h.Client.Delete(context.Background(), &contracts.DeleteRequest{
+	ctx := h.withAuth(context.Background())
+
+	resp, err := h.Client.Delete(ctx, &contracts.DeleteRequest{
 		Id: id,
 	})
 	if err != nil {
@@ -113,7 +116,9 @@ func (h *Handler) HandleDelete(id int64) {
 }
 
 func (h *Handler) HandleList() {
-	resp, err := h.Client.List(context.Background(), &contracts.ListRequest{})
+	ctx := h.withAuth(context.Background())
+
+	resp, err := h.Client.List(ctx, &contracts.ListRequest{})
 	if err != nil {
 		log.Printf("List failed: %v", err)
 		return
@@ -125,9 +130,9 @@ func (h *Handler) HandleList() {
 		return
 	}
 
-	for i, item := range resp.DataList {
-		fmt.Printf(" %d. ID: %d | %s | %s\n",
-			i+1, item.Id, item.Type.String(), item.Title)
+	for _, item := range resp.DataList {
+		fmt.Printf(" ID: %d | %s | %s\n",
+			item.Id, item.Type.String(), item.Title)
 	}
 }
 
