@@ -29,11 +29,20 @@ var (
 
 func main() {
 	// Инициализируем конфиг.
-	cfg := config.Load()
+	cfg, err := config.Load()
+	if err != nil {
+		log.Fatalf("Failed to load config: %v", err)
+	}
 
 	// Инициализируем grpc клиент.
-	certBytes, _ := base64.StdEncoding.DecodeString(cfg.ServerCert)
-	serverCert, _ := tls.X509KeyPair(certBytes, []byte{})
+	certBytes, err := base64.StdEncoding.DecodeString(cfg.ServerCert)
+	if err != nil {
+		log.Fatalf("Failed to decode server cert: %v", err)
+	}
+	serverCert, err := tls.X509KeyPair(certBytes, []byte{})
+	if err != nil {
+		log.Fatalf("Failed to parse server cert: %v", err)
+	}
 	conn, err := grpc.NewClient(
 		cfg.ServerAddress,
 		grpc.WithTransportCredentials(

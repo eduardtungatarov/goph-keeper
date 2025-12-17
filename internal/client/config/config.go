@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"os"
 	"time"
 )
@@ -11,13 +12,19 @@ type Config struct {
 	ServerAddress string
 }
 
-func Load() *Config {
-	servertCert, _ := os.LookupEnv("SERVER_CERT")
-	serverAddress, _ := os.LookupEnv("SERVER_ADDRESS")
+func Load() (*Config, error) {
+	servertCert, ok := os.LookupEnv("SERVER_CERT")
+	if !ok {
+		return nil, errors.New("SERVER_CERT not defined")
+	}
+	serverAddress, ok := os.LookupEnv("SERVER_ADDRESS")
+	if !ok {
+		return nil, errors.New("SERVER_ADDRESS not defined")
+	}
 
 	return &Config{
 		ServerCert:    servertCert,
 		ServerTimeout: time.Second * 5,
 		ServerAddress: serverAddress,
-	}
+	}, nil
 }

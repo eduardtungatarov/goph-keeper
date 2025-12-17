@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/eduardtungatarov/goph-keeper/internal/client/handler"
@@ -159,9 +160,13 @@ func (c *Command) ReadCmd() *cobra.Command {
 		Short: "Read data item by ID",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			var id int64
-			fmt.Sscanf(args[0], "%d", &id)
-			c.h.HandleRead(id)
+			idStr := args[0]
+			id, err := strconv.Atoi(idStr)
+			if err != nil {
+				fmt.Printf("Invalid ID '%s': %v\n", idStr, err)
+				return
+			}
+			c.h.HandleRead(int64(id))
 		},
 	}
 	return cmd
@@ -173,9 +178,13 @@ func (c *Command) DeleteCmd() *cobra.Command {
 		Short: "Delete data item by ID",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			var id int64
-			fmt.Sscanf(args[0], "%d", &id)
-			c.h.HandleDelete(id)
+			idStr := args[0]
+			id, err := strconv.Atoi(idStr)
+			if err != nil {
+				fmt.Printf("Invalid ID '%s': %v\n", idStr, err)
+				return
+			}
+			c.h.HandleDelete(int64(id))
 		},
 	}
 	return cmd

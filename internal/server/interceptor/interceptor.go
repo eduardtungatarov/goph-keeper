@@ -29,19 +29,26 @@ func New(
 }
 
 func (i *Interceptor) AuthInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
+	// Endpoints без аутентификации.
+	publicMethods := map[string]bool{
+		"/server.KeeperService/Login":    true,
+		"/server.KeeperService/Register": true,
+	}
+	if publicMethods[info.FullMethod] {
 		return handler(ctx, req)
 	}
 
-	authHeaders := md.Get("token")
-	if len(authHeaders) > 0 {
-		userID, err := i.authService.GetUserIDByToken(authHeaders[0])
-		if err != nil {
-			return nil, status.Error(codes.Unauthenticated, "token invalid")
-		}
-		ctx = context.WithValue(ctx, auth.UserIDKeyName, userID)
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok || len(md.Get("token")) == 0 {
+		return nil, status.Error(codes.Unauthenticated, "authorization required")
 	}
 
+	authHeaders := md.Get("token")
+	userID, err := i.authService.GetUserIDByToken(authHeaders[0])
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, "token invalid")
+	}
+
+	ctx = context.WithValue(ctx, auth.UserIDKeyName, userID)
 	return handler(ctx, req)
 }

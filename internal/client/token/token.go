@@ -11,7 +11,12 @@ type Storage struct {
 }
 
 func Save(token string) error {
-	dir := filepath.Join(os.Getenv("HOME"), ".keeper")
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return err
+	}
+
+	dir := filepath.Join(homeDir, ".keeper")
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return err
 	}

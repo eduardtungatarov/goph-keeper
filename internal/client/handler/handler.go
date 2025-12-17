@@ -31,7 +31,7 @@ func (h *Handler) HandleLogin(login, password string) {
 		log.Printf("Login failed: %v", err)
 		return
 	}
-	fmt.Printf("Login successful! Token: %s\n", resp.Token)
+	fmt.Println("Login successful!")
 	if err := token.Save(resp.Token); err != nil {
 		log.Printf("Failed to save token: %v", err)
 	} else {
@@ -92,7 +92,6 @@ func (h *Handler) HandleRead(id int64) {
 		return
 	}
 
-	fmt.Printf("ID: %d\n", id)
 	fmt.Printf("Type: %s\n", resp.Type.String())
 	fmt.Printf("Data: %s\n", string(resp.Data))
 }
