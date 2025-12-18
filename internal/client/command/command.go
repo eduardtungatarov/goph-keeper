@@ -31,7 +31,7 @@ func (c *Command) LoginCmd() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			login = args[0]
-			c.h.HandleLogin(login, password)
+			c.h.HandleLogin(cmd.Context(), login, password)
 		},
 	}
 
@@ -51,7 +51,7 @@ func (c *Command) RegisterCmd() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			login = args[0]
-			c.h.HandleRegister(login, password)
+			c.h.HandleRegister(cmd.Context(), login, password)
 		},
 	}
 
@@ -97,7 +97,7 @@ func (c *Command) createPwdCmd() *cobra.Command {
 			password = strings.TrimSpace(password)
 
 			data := login + "|" + password
-			c.h.HandleCreate("pwd", data, title)
+			c.h.HandleCreate(cmd.Context(), "pwd", data, title)
 		},
 	}
 
@@ -128,7 +128,7 @@ func (c *Command) createCardCmd() *cobra.Command {
 			cvv = strings.TrimSpace(cvv)
 
 			data := number + "|" + exp + "|" + cvv
-			c.h.HandleCreate("card", data, title)
+			c.h.HandleCreate(cmd.Context(), "card", data, title)
 		},
 	}
 
@@ -142,7 +142,7 @@ func (c *Command) createBinaryCmd() *cobra.Command {
 		Use:   "binary",
 		Short: "Create binary item",
 		Run: func(cmd *cobra.Command, args []string) {
-			c.h.HandleCreate("binary", data, title)
+			c.h.HandleCreate(cmd.Context(), "binary", data, title)
 		},
 	}
 
@@ -166,7 +166,7 @@ func (c *Command) ReadCmd() *cobra.Command {
 				fmt.Printf("Invalid ID '%s': %v\n", idStr, err)
 				return
 			}
-			c.h.HandleRead(int64(id))
+			c.h.HandleRead(cmd.Context(), int64(id))
 		},
 	}
 	return cmd
@@ -184,7 +184,7 @@ func (c *Command) DeleteCmd() *cobra.Command {
 				fmt.Printf("Invalid ID '%s': %v\n", idStr, err)
 				return
 			}
-			c.h.HandleDelete(int64(id))
+			c.h.HandleDelete(cmd.Context(), int64(id))
 		},
 	}
 	return cmd
@@ -195,7 +195,7 @@ func (c *Command) ListCmd() *cobra.Command {
 		Use:   "list",
 		Short: "List all data items",
 		Run: func(cmd *cobra.Command, args []string) {
-			c.h.HandleList()
+			c.h.HandleList(cmd.Context())
 		},
 	}
 

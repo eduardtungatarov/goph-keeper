@@ -22,8 +22,8 @@ func New(client contracts.KeeperServiceClient) *Handler {
 	}
 }
 
-func (h *Handler) HandleLogin(login, password string) {
-	resp, err := h.Client.Login(context.Background(), &contracts.LoginRequest{
+func (h *Handler) HandleLogin(ctx context.Context, login, password string) {
+	resp, err := h.Client.Login(ctx, &contracts.LoginRequest{
 		Login:    login,
 		Password: password,
 	})
@@ -39,8 +39,8 @@ func (h *Handler) HandleLogin(login, password string) {
 	}
 }
 
-func (h *Handler) HandleRegister(login, password string) {
-	resp, err := h.Client.Register(context.Background(), &contracts.LoginRequest{
+func (h *Handler) HandleRegister(ctx context.Context, login, password string) {
+	resp, err := h.Client.Register(ctx, &contracts.LoginRequest{
 		Login:    login,
 		Password: password,
 	})
@@ -56,8 +56,8 @@ func (h *Handler) HandleRegister(login, password string) {
 	}
 }
 
-func (h *Handler) HandleCreate(dataTypeStr, data, title string) {
-	ctx := h.withAuth(context.Background())
+func (h *Handler) HandleCreate(ctx context.Context, dataTypeStr, data, title string) {
+	ctx = h.withAuth(ctx)
 
 	dataType, ok := h.parseDataType(dataTypeStr)
 	if !ok {
@@ -81,8 +81,8 @@ func (h *Handler) HandleCreate(dataTypeStr, data, title string) {
 	}
 }
 
-func (h *Handler) HandleRead(id int64) {
-	ctx := h.withAuth(context.Background())
+func (h *Handler) HandleRead(ctx context.Context, id int64) {
+	ctx = h.withAuth(ctx)
 
 	resp, err := h.Client.Read(ctx, &contracts.ReadRequest{
 		Id: id,
@@ -96,8 +96,8 @@ func (h *Handler) HandleRead(id int64) {
 	fmt.Printf("Data: %s\n", string(resp.Data))
 }
 
-func (h *Handler) HandleDelete(id int64) {
-	ctx := h.withAuth(context.Background())
+func (h *Handler) HandleDelete(ctx context.Context, id int64) {
+	ctx = h.withAuth(ctx)
 
 	resp, err := h.Client.Delete(ctx, &contracts.DeleteRequest{
 		Id: id,
@@ -114,8 +114,8 @@ func (h *Handler) HandleDelete(id int64) {
 	}
 }
 
-func (h *Handler) HandleList() {
-	ctx := h.withAuth(context.Background())
+func (h *Handler) HandleList(ctx context.Context) {
+	ctx = h.withAuth(ctx)
 
 	resp, err := h.Client.List(ctx, &contracts.ListRequest{})
 	if err != nil {
