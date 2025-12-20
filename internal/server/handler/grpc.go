@@ -19,12 +19,16 @@ import (
 )
 
 // AuthService сервис аутентификации.
+//
+//go:generate mockery --name=AuthService
 type AuthService interface {
 	Register(ctx context.Context, login, pwd string) (string, error)
 	Login(ctx context.Context, login, pwd string) (string, error)
 }
 
 // DataService сервис по работе с данными пользователей.
+//
+//go:generate mockery --name=DataService
 type DataService interface {
 	Create(ctx context.Context, create dto.Create) error
 	Read(ctx context.Context, create dto.Read) (dto.ReadResult, error)
@@ -100,7 +104,7 @@ func (h *Handler) Create(ctx context.Context, req *contracts.CreateRequest) (*co
 		if errors.Is(err, repository.ErrDataTooBig) {
 			return nil, status.Error(codes.InvalidArgument, "data too large: maximum size is 1MB")
 		}
-		return nil, err
+		return nil, status.Error(codes.Internal, "data create failed")
 	}
 
 	return &contracts.CreateResponse{
@@ -117,7 +121,7 @@ func (h *Handler) Read(ctx context.Context, req *contracts.ReadRequest) (*contra
 		if errors.Is(err, repository.ErrNoModel) {
 			return nil, status.Error(codes.NotFound, "data not found")
 		}
-		return nil, err
+		return nil, status.Error(codes.Internal, "data read failed")
 	}
 	return &contracts.ReadResponse{
 		Type: contracts.DataType(contracts.DataType_value[data.Type]),
@@ -134,7 +138,7 @@ func (h *Handler) Delete(ctx context.Context, req *contracts.DeleteRequest) (*co
 		if errors.Is(err, repository.ErrNoModel) {
 			return nil, status.Error(codes.NotFound, "data not found")
 		}
-		return nil, err
+		return nil, status.Error(codes.Internal, "data delete failed")
 	}
 	return &contracts.DeleteResponse{
 		Success: true,
@@ -145,7 +149,7 @@ func (h *Handler) Delete(ctx context.Context, req *contracts.DeleteRequest) (*co
 func (h *Handler) List(ctx context.Context, _ *contracts.ListRequest) (*contracts.ListResponse, error) {
 	datas, err := h.dataService.List(ctx)
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.Internal, "data list failed")
 	}
 
 	var dataList []*contracts.DataItem

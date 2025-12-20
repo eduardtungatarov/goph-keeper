@@ -12,6 +12,8 @@ import (
 )
 
 // Repository данных пользователя.
+//
+//go:generate mockery --name=Repository
 type Repository interface {
 	Save(ctx context.Context, data queries.Datum) (queries.Datum, error)
 	GetByUserIDAndID(ctx context.Context, userID, id int) (queries.Datum, error)
@@ -20,6 +22,8 @@ type Repository interface {
 }
 
 // SecurityService сервис шифрования данных.
+//
+//go:generate mockery --name=SecurityService
 type SecurityService interface {
 	GetEncrypted(ctx context.Context, data []byte) ([]byte, error)
 	GetDecrypted(ctx context.Context, data []byte) ([]byte, error)
@@ -121,14 +125,6 @@ func (s *Service) List(ctx context.Context) ([]queries.Datum, error) {
 	datas, err := s.repository.ListByUserID(ctx, userID)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
-	}
-
-	for i := range datas {
-		decryptedData, err := s.securityService.GetDecrypted(ctx, datas[i].Data)
-		if err != nil {
-			return nil, fmt.Errorf("%s: %w", op, err)
-		}
-		datas[i].Data = decryptedData
 	}
 
 	return datas, nil
