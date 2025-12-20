@@ -12,16 +12,19 @@ import (
 	"github.com/eduardtungatarov/goph-keeper/internal/server/contracts"
 )
 
+// Handler обработчик команд.
 type Handler struct {
 	Client contracts.KeeperServiceClient
 }
 
+// New конструктор обработчиков команд.
 func New(client contracts.KeeperServiceClient) *Handler {
 	return &Handler{
 		Client: client,
 	}
 }
 
+// HandleLogin обработчик входа.
 func (h *Handler) HandleLogin(ctx context.Context, login, password string) {
 	resp, err := h.Client.Login(ctx, &contracts.LoginRequest{
 		Login:    login,
@@ -39,6 +42,7 @@ func (h *Handler) HandleLogin(ctx context.Context, login, password string) {
 	}
 }
 
+// HandleRegister обработчик регистрации.
 func (h *Handler) HandleRegister(ctx context.Context, login, password string) {
 	resp, err := h.Client.Register(ctx, &contracts.LoginRequest{
 		Login:    login,
@@ -56,6 +60,7 @@ func (h *Handler) HandleRegister(ctx context.Context, login, password string) {
 	}
 }
 
+// HandleCreate обработчик создания данных.
 func (h *Handler) HandleCreate(ctx context.Context, dataTypeStr, data, title string) {
 	ctx = h.withAuth(ctx)
 
@@ -81,6 +86,7 @@ func (h *Handler) HandleCreate(ctx context.Context, dataTypeStr, data, title str
 	}
 }
 
+// HandleRead обработчик чтения данных.
 func (h *Handler) HandleRead(ctx context.Context, id int64) {
 	ctx = h.withAuth(ctx)
 
@@ -96,6 +102,7 @@ func (h *Handler) HandleRead(ctx context.Context, id int64) {
 	fmt.Printf("Data: %s\n", string(resp.Data))
 }
 
+// HandleDelete обработчик удаления данных.
 func (h *Handler) HandleDelete(ctx context.Context, id int64) {
 	ctx = h.withAuth(ctx)
 
@@ -114,6 +121,7 @@ func (h *Handler) HandleDelete(ctx context.Context, id int64) {
 	}
 }
 
+// HandleList обработчик получения данных пользователя.
 func (h *Handler) HandleList(ctx context.Context) {
 	ctx = h.withAuth(ctx)
 

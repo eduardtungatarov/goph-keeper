@@ -12,14 +12,17 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
+// AuthService сервис аутентификации.
 type AuthService interface {
 	GetUserIDByToken(tokenStr string) (int, error)
 }
 
+// Interceptor grpc сервера.
 type Interceptor struct {
 	authService AuthService
 }
 
+// New создание interceptor.
 func New(
 	authService AuthService,
 ) *Interceptor {
@@ -28,6 +31,7 @@ func New(
 	}
 }
 
+// AuthInterceptor interceptor аутентификации.
 func (i *Interceptor) AuthInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	// Endpoints без аутентификации.
 	publicMethods := map[string]bool{

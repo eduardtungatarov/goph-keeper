@@ -8,16 +8,19 @@ import (
 	"fmt"
 )
 
+// Service сервис шифрования данных пользователя.
 type Service struct {
 	key []byte
 }
 
+// New конструктор сервиса шифрования данных пользователя.
 func New(key []byte) *Service {
 	return &Service{
 		key: key,
 	}
 }
 
+// GetEncrypted получить зашифрованную форму данных.
 func (s *Service) GetEncrypted(ctx context.Context, data []byte) ([]byte, error) {
 	const op = "security.Service.GetEncrypted"
 
@@ -40,6 +43,7 @@ func (s *Service) GetEncrypted(ctx context.Context, data []byte) ([]byte, error)
 	return encrypted, nil
 }
 
+// GetDecrypted дешифровать данные пользователя.
 func (s *Service) GetDecrypted(ctx context.Context, data []byte) ([]byte, error) {
 	const op = "security.Service.GetDecrypted"
 

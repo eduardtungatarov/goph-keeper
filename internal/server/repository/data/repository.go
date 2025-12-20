@@ -13,11 +13,13 @@ import (
 	"github.com/eduardtungatarov/goph-keeper/internal/server/repository/data/queries"
 )
 
+// Repository репозиторий данных пользователя.
 type Repository struct {
 	db      queries.DBTX
 	querier queries.Querier
 }
 
+// New конструктор репозитория данных пользователя.
 func New(db queries.DBTX) *Repository {
 	return &Repository{
 		db:      db,
@@ -25,6 +27,7 @@ func New(db queries.DBTX) *Repository {
 	}
 }
 
+// Save сохранение данных пользователя.
 func (r *Repository) Save(ctx context.Context, data queries.Datum) (queries.Datum, error) {
 	const op = "data.Repository.Save"
 
@@ -47,6 +50,7 @@ func (r *Repository) Save(ctx context.Context, data queries.Datum) (queries.Datu
 	return model, err
 }
 
+// GetByUserIDAndID получить данные пользователя.
 func (r *Repository) GetByUserIDAndID(ctx context.Context, userID, ID int) (queries.Datum, error) {
 	const op = "data.Repository.GetByUserIDAndID"
 
@@ -64,6 +68,7 @@ func (r *Repository) GetByUserIDAndID(ctx context.Context, userID, ID int) (quer
 	return data, nil
 }
 
+// DeleteByUserIDAndID удалить данные пользователя.
 func (r *Repository) DeleteByUserIDAndID(ctx context.Context, userID, ID int) error {
 	const op = "data.Repository.DeleteByUserIDAndID"
 
@@ -82,6 +87,7 @@ func (r *Repository) DeleteByUserIDAndID(ctx context.Context, userID, ID int) er
 	return nil
 }
 
+// ListByUserID получить все данные пользователя.
 func (r *Repository) ListByUserID(ctx context.Context, userID int) ([]queries.Datum, error) {
 	const op = "data.Repository.ListByUserID"
 

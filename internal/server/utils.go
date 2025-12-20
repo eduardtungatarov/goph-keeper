@@ -7,6 +7,7 @@ import (
 	"github.com/eduardtungatarov/goph-keeper/internal/server/service/auth"
 )
 
+// GetUserID получить юзера из контекста.
 func GetUserID(ctx context.Context) (int, error) {
 	if userID, ok := ctx.Value(auth.UserIDKeyName).(int); ok {
 		return userID, nil

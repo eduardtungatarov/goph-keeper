@@ -2,15 +2,17 @@ package config
 
 import "os"
 
+// Config сервера.
 type Config struct {
-	DatabaseDSN    string
-	ServerAddress  string
-	JWTSecretKey   string
-	DataEncryptKey string
-	ServerCert     string
-	ServerKey      string
+	DatabaseDSN    string // строка подключения к базе данных
+	ServerAddress  string // хост:порт запуска сервера
+	JWTSecretKey   string // секретный ключ для jwt-токенов
+	DataEncryptKey string // секретный ключ для шифрования данных пользователей
+	ServerCert     string // публичный сертификат сервера
+	ServerKey      string // приватный ключ сервера
 }
 
+// Load загрузка конфига из env.
 func Load() *Config {
 	dsn, _ := os.LookupEnv("DATABASE_DSN")
 	serverAddress, _ := os.LookupEnv("SERVER_ADDRESS")

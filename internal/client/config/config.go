@@ -6,12 +6,14 @@ import (
 	"time"
 )
 
+// Config конфигурация клиента.
 type Config struct {
-	ServerCert    string
-	ServerTimeout time.Duration
-	ServerAddress string
+	ServerCert    string        // сертификат сервера
+	ServerTimeout time.Duration // таймаут к серверу
+	ServerAddress string        // хост:порт сервера
 }
 
+// Load загрузка конфига из env.
 func Load() (*Config, error) {
 	servertCert, ok := os.LookupEnv("SERVER_CERT")
 	if !ok {

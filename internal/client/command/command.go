@@ -12,16 +12,19 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// Command команды.
 type Command struct {
 	h *handler.Handler
 }
 
+// New конструктор команд.
 func New(h *handler.Handler) *Command {
 	return &Command{
 		h: h,
 	}
 }
 
+// LoginCmd команда входа.
 func (c *Command) LoginCmd() *cobra.Command {
 	var login, password string
 
@@ -42,6 +45,7 @@ func (c *Command) LoginCmd() *cobra.Command {
 	return cmd
 }
 
+// RegisterCmd команда регистрации.
 func (c *Command) RegisterCmd() *cobra.Command {
 	var login, password string
 
@@ -62,6 +66,7 @@ func (c *Command) RegisterCmd() *cobra.Command {
 	return cmd
 }
 
+// CreateCmd команда сохранения данных на сервере.
 func (c *Command) CreateCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create",
@@ -154,6 +159,7 @@ func (c *Command) createBinaryCmd() *cobra.Command {
 	return cmd
 }
 
+// ReadCmd команда чтения данных.
 func (c *Command) ReadCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "read [ID]",
@@ -172,6 +178,7 @@ func (c *Command) ReadCmd() *cobra.Command {
 	return cmd
 }
 
+// DeleteCmd команда удаления данных.
 func (c *Command) DeleteCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "delete [ID]",
@@ -190,6 +197,7 @@ func (c *Command) DeleteCmd() *cobra.Command {
 	return cmd
 }
 
+// ListCmd список данных пользователя.
 func (c *Command) ListCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list",

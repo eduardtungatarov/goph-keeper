@@ -18,11 +18,13 @@ import (
 	userRepository "github.com/eduardtungatarov/goph-keeper/internal/server/repository/user"
 )
 
+// AuthService сервис аутентификации.
 type AuthService interface {
 	Register(ctx context.Context, login, pwd string) (string, error)
 	Login(ctx context.Context, login, pwd string) (string, error)
 }
 
+// DataService сервис по работе с данными пользователей.
 type DataService interface {
 	Create(ctx context.Context, create dto.Create) error
 	Read(ctx context.Context, create dto.Read) (dto.ReadResult, error)
@@ -30,12 +32,14 @@ type DataService interface {
 	List(ctx context.Context) ([]queries.Datum, error)
 }
 
+// Handler обработчик методов контракта.
 type Handler struct {
 	contracts.UnimplementedKeeperServiceServer
 	authService AuthService
 	dataService DataService
 }
 
+// New конструктор обработчиков.
 func New(
 	authService AuthService,
 	dataService DataService,
@@ -46,6 +50,7 @@ func New(
 	}
 }
 
+// Register регистрация пользователя.
 func (h *Handler) Register(ctx context.Context, req *contracts.LoginRequest) (*contracts.LoginResponse, error) {
 	if req.Login == "" || req.Password == "" {
 		return nil, status.Error(codes.InvalidArgument, "login and password are required")
@@ -64,6 +69,7 @@ func (h *Handler) Register(ctx context.Context, req *contracts.LoginRequest) (*c
 	}, nil
 }
 
+// Login аутентификация пользователя.
 func (h *Handler) Login(ctx context.Context, req *contracts.LoginRequest) (*contracts.LoginResponse, error) {
 	if req.Login == "" || req.Password == "" {
 		return nil, status.Error(codes.InvalidArgument, "login and password are required")
@@ -83,6 +89,7 @@ func (h *Handler) Login(ctx context.Context, req *contracts.LoginRequest) (*cont
 	}, nil
 }
 
+// Create сохранение данных пользователя.
 func (h *Handler) Create(ctx context.Context, req *contracts.CreateRequest) (*contracts.CreateResponse, error) {
 	err := h.dataService.Create(ctx, dto.Create{
 		Type:  req.GetType().String(),
@@ -101,6 +108,7 @@ func (h *Handler) Create(ctx context.Context, req *contracts.CreateRequest) (*co
 	}, nil
 }
 
+// Read чтение данных пользователя.
 func (h *Handler) Read(ctx context.Context, req *contracts.ReadRequest) (*contracts.ReadResponse, error) {
 	data, err := h.dataService.Read(ctx, dto.Read{
 		ID: int(req.GetId()),
@@ -117,6 +125,7 @@ func (h *Handler) Read(ctx context.Context, req *contracts.ReadRequest) (*contra
 	}, nil
 }
 
+// Delete удаление данных пользователя.
 func (h *Handler) Delete(ctx context.Context, req *contracts.DeleteRequest) (*contracts.DeleteResponse, error) {
 	err := h.dataService.Delete(ctx, dto.Delete{
 		ID: int(req.GetId()),
@@ -132,6 +141,7 @@ func (h *Handler) Delete(ctx context.Context, req *contracts.DeleteRequest) (*co
 	}, nil
 }
 
+// List список данных пользователя.
 func (h *Handler) List(ctx context.Context, _ *contracts.ListRequest) (*contracts.ListResponse, error) {
 	datas, err := h.dataService.List(ctx)
 	if err != nil {

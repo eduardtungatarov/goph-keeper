@@ -11,6 +11,7 @@ import (
 	"github.com/eduardtungatarov/goph-keeper/internal/server/service/data/dto"
 )
 
+// Repository данных пользователя.
 type Repository interface {
 	Save(ctx context.Context, data queries.Datum) (queries.Datum, error)
 	GetByUserIDAndID(ctx context.Context, userID, id int) (queries.Datum, error)
@@ -18,16 +19,19 @@ type Repository interface {
 	ListByUserID(ctx context.Context, userID int) ([]queries.Datum, error)
 }
 
+// SecurityService сервис шифрования данных.
 type SecurityService interface {
 	GetEncrypted(ctx context.Context, data []byte) ([]byte, error)
 	GetDecrypted(ctx context.Context, data []byte) ([]byte, error)
 }
 
+// Service данных пользователей.
 type Service struct {
 	repository      Repository
 	securityService SecurityService
 }
 
+// New конструктор сервиса данных пользователей.
 func New(repository Repository, securityService SecurityService) *Service {
 	return &Service{
 		repository:      repository,
@@ -35,6 +39,7 @@ func New(repository Repository, securityService SecurityService) *Service {
 	}
 }
 
+// Create создание данных пользователя на сервере.
 func (s *Service) Create(ctx context.Context, read dto.Create) error {
 	const op = "data.Service.Create"
 
@@ -62,6 +67,7 @@ func (s *Service) Create(ctx context.Context, read dto.Create) error {
 	return nil
 }
 
+// Read получение данных пользователя.
 func (s *Service) Read(ctx context.Context, read dto.Read) (dto.ReadResult, error) {
 	const op = "data.Service.Read"
 
@@ -86,6 +92,7 @@ func (s *Service) Read(ctx context.Context, read dto.Read) (dto.ReadResult, erro
 	}, nil
 }
 
+// Delete удаление данных пользователя.
 func (s *Service) Delete(ctx context.Context, read dto.Delete) error {
 	const op = "data.Service.Delete"
 
@@ -102,6 +109,7 @@ func (s *Service) Delete(ctx context.Context, read dto.Delete) error {
 	return nil
 }
 
+// List список данных пользователя.
 func (s *Service) List(ctx context.Context) ([]queries.Datum, error) {
 	const op = "data.Service.List"
 

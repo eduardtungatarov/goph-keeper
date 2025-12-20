@@ -12,30 +12,37 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
+// UserIDKey тип ключа в контексте хранящий id аутентифицированного пользователя.
 type UserIDKey string
 
 const (
+	// UserIDKeyName наименование ключа в контексте хранящий id аутентифицированного пользователя.
 	UserIDKeyName UserIDKey = "userId"
-	tokenLifeTime           = 24 * time.Hour
+	// tokenLifeTime время жизни jwt токена.
+	tokenLifeTime = 24 * time.Hour
 )
 
+// ErrLoginPwd неправильный логик и пароль.
 var ErrLoginPwd = errors.New("invalid username/password pair")
 
+// UserRepository репозиторий пользователей.
 type UserRepository interface {
 	SaveUser(ctx context.Context, user queries.User) (queries.User, error)
 	FindUserByLogin(ctx context.Context, login string) (queries.User, error)
 }
 
-type Claims struct {
+type claims struct {
 	jwt.RegisteredClaims
 	UserID int
 }
 
+// Service аутентификации.
 type Service struct {
 	secretKey string
 	userRepo  UserRepository
 }
 
+// New создать новый сервис аутентификации.
 func New(secretKey string, userRepo UserRepository) *Service {
 	return &Service{
 		secretKey: secretKey,
@@ -43,6 +50,7 @@ func New(secretKey string, userRepo UserRepository) *Service {
 	}
 }
 
+// Register регистрация пользователя.
 func (s *Service) Register(ctx context.Context, login, pwd string) (string, error) {
 	hashedPassword, err := s.getHashedPwd(pwd)
 	if err != nil {
@@ -65,6 +73,7 @@ func (s *Service) Register(ctx context.Context, login, pwd string) (string, erro
 	return token, nil
 }
 
+// Login аутентификация пользователя.
 func (s *Service) Login(ctx context.Context, login, pwd string) (string, error) {
 	user, err := s.userRepo.FindUserByLogin(ctx, login)
 	if err != nil {
@@ -83,8 +92,9 @@ func (s *Service) Login(ctx context.Context, login, pwd string) (string, error) 
 	return token, nil
 }
 
+// GetUserIDByToken получить пользователя по jwt токену.
 func (s *Service) GetUserIDByToken(tokenStr string) (int, error) {
-	claims := &Claims{}
+	claims := &claims{}
 	token, err := jwt.ParseWithClaims(tokenStr, claims,
 		func(t *jwt.Token) (interface{}, error) {
 			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -119,7 +129,7 @@ func (s *Service) checkPasswordHash(pwd, hash string) bool {
 func (s *Service) buildJWTString(userID int) (string, error) {
 	expirationTime := time.Now().Add(tokenLifeTime)
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 		},

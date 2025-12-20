@@ -28,6 +28,7 @@ type server struct {
 	i   *interceptor.Interceptor
 }
 
+// New конструктор grpc сервера.
 func New(log *zap.SugaredLogger, h *handler.Handler, cfg *config.Config, i *interceptor.Interceptor) *server {
 	return &server{
 		log: log,
@@ -37,6 +38,7 @@ func New(log *zap.SugaredLogger, h *handler.Handler, cfg *config.Config, i *inte
 	}
 }
 
+// Run запуск grpc сервера.
 func (s *server) Run(ctx context.Context) error {
 	// Настройки tls.
 	certBytes, err := base64.StdEncoding.DecodeString(s.cfg.ServerCert)

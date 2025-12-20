@@ -14,13 +14,16 @@ import (
 	"github.com/eduardtungatarov/goph-keeper/internal/server/repository/user/queries"
 )
 
+// ErrUserAlreadyExists пользователь уже существует.
 var ErrUserAlreadyExists = errors.New("user with this login already exists")
 
+// Repository пользователя.
 type Repository struct {
 	db      queries.DBTX
 	querier queries.Querier
 }
 
+// New конструктор репозитория пользователя.
 func New(db queries.DBTX) *Repository {
 	return &Repository{
 		db:      db,
@@ -28,6 +31,7 @@ func New(db queries.DBTX) *Repository {
 	}
 }
 
+// SaveUser создать пользователя.
 func (r *Repository) SaveUser(ctx context.Context, user queries.User) (queries.User, error) {
 	model, err := r.querier.SaveUser(ctx, r.db, queries.SaveUserParams{
 		Login:    user.Login,
@@ -44,6 +48,7 @@ func (r *Repository) SaveUser(ctx context.Context, user queries.User) (queries.U
 	return model, err
 }
 
+// FindUserByLogin найти пользователя по логину.
 func (r *Repository) FindUserByLogin(ctx context.Context, login string) (queries.User, error) {
 	model, err := r.querier.FindUserByLogin(ctx, r.db, login)
 	if err != nil {
