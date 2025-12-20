@@ -13,6 +13,8 @@ import (
 )
 
 // AuthService сервис аутентификации.
+//
+//go:generate mockery --name=AuthService
 type AuthService interface {
 	GetUserIDByToken(tokenStr string) (int, error)
 }

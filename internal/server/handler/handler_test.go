@@ -54,6 +54,7 @@ func TestHandler_Register_Success(t *testing.T) {
 
 	require.NoError(t, err)
 	assert.NotEmpty(t, resp.Token)
+	userRepo.AssertExpectations(t)
 }
 
 // TestHandler_Register_InvalidInput регистрация пользователя - неверный ввод.
@@ -94,6 +95,7 @@ func TestHandler_Register_UserAlreadyExists(t *testing.T) {
 	st, ok := status.FromError(err)
 	require.True(t, ok)
 	assert.Equal(t, codes.AlreadyExists, st.Code())
+	userRepo.AssertExpectations(t)
 }
 
 // TestHandler_NoUserIDInContext_Register вызов метода без user ID в контексте.
@@ -122,6 +124,7 @@ func TestHandler_Login_Success(t *testing.T) {
 
 	require.NoError(t, err)
 	assert.NotEmpty(t, resp.Token)
+	userRepo.AssertExpectations(t)
 }
 
 // TestHandler_Login_InvalidInput регистрация пользователя - неверный ввод.
@@ -162,6 +165,7 @@ func TestHandler_Login_InvalidCredentials_NotFound(t *testing.T) {
 	st, ok := status.FromError(err)
 	require.True(t, ok)
 	assert.Equal(t, codes.Unauthenticated, st.Code())
+	userRepo.AssertExpectations(t)
 }
 
 // TestHandler_NoUserIDInContext_Login вызов метода без user ID в контексте.
@@ -193,6 +197,7 @@ func TestHandler_Create_Success(t *testing.T) {
 
 	require.NoError(t, err)
 	assert.True(t, resp.Success)
+	dataRepo.AssertExpectations(t)
 }
 
 // TestHandler_Create_DataTooBig сохраняем данные пользователя - данные слишком большие.
@@ -212,6 +217,7 @@ func TestHandler_Create_DataTooBig(t *testing.T) {
 	st, ok := status.FromError(err)
 	require.True(t, ok)
 	assert.Equal(t, codes.InvalidArgument, st.Code())
+	dataRepo.AssertExpectations(t)
 }
 
 // TestHandler_Read_Success чтение данных пользователя - успешный сценарий.
@@ -233,6 +239,7 @@ func TestHandler_Read_Success(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, contracts.DataType_PWD, resp.Type)
 	assert.Equal(t, "github_login|github_pwd", string(resp.Data))
+	dataRepo.AssertExpectations(t)
 }
 
 // TestHandler_Read_NotFound чтение данных пользователя - не найдено данных.
@@ -248,6 +255,7 @@ func TestHandler_Read_NotFound(t *testing.T) {
 	st, ok := status.FromError(err)
 	require.True(t, ok)
 	assert.Equal(t, codes.NotFound, st.Code())
+	dataRepo.AssertExpectations(t)
 }
 
 // TestHandler_NoUserIDInContext_Read вызов метода без user ID в контексте.
@@ -273,6 +281,7 @@ func TestHandler_Delete_Success(t *testing.T) {
 
 	require.NoError(t, err)
 	assert.True(t, resp.Success)
+	dataRepo.AssertExpectations(t)
 }
 
 // TestHandler_Delete_NotFound удаление данных - не найдено данных.
@@ -288,6 +297,7 @@ func TestHandler_Delete_NotFound(t *testing.T) {
 	st, ok := status.FromError(err)
 	require.True(t, ok)
 	assert.Equal(t, codes.NotFound, st.Code())
+	dataRepo.AssertExpectations(t)
 }
 
 // TestHandler_NoUserIDInContext_Delete вызов метода без user ID в контексте.
@@ -329,6 +339,8 @@ func TestHandler_List_Success(t *testing.T) {
 	assert.Equal(t, int64(3), resp.DataList[2].Id)
 	assert.Equal(t, contracts.DataType_BINARY, resp.DataList[2].Type)
 	assert.Equal(t, "test.txt", resp.DataList[2].Title)
+
+	dataRepo.AssertExpectations(t)
 }
 
 // TestHandler_List_Error список данных - ошибка бд.
@@ -344,4 +356,5 @@ func TestHandler_List_Error(t *testing.T) {
 	st, ok := status.FromError(err)
 	require.True(t, ok)
 	assert.Equal(t, codes.Internal, st.Code())
+	dataRepo.AssertExpectations(t)
 }
