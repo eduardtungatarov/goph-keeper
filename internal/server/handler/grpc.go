@@ -158,7 +158,6 @@ func (h *Handler) List(ctx context.Context, _ *contracts.ListRequest) (*contract
 		dataList = append(dataList, &contracts.DataItem{
 			Id:    v.ID,
 			Type:  contracts.DataType(contracts.DataType_value[v.Type]),
-			Data:  v.Data,
 			Title: v.Title,
 		})
 	}

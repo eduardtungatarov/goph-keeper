@@ -77,7 +77,6 @@ type DataItem struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Type          DataType               `protobuf:"varint,2,opt,name=type,proto3,enum=server.DataType" json:"type,omitempty"`
-	Data          []byte                 `protobuf:"bytes,3,opt,name=data,proto3" json:"data,omitempty"`
 	Title         string                 `protobuf:"bytes,4,opt,name=title,proto3" json:"title,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -125,13 +124,6 @@ func (x *DataItem) GetType() DataType {
 		return x.Type
 	}
 	return DataType_UNSPECIFIED
-}
-
-func (x *DataItem) GetData() []byte {
-	if x != nil {
-		return x.Data
-	}
-	return nil
 }
 
 func (x *DataItem) GetTitle() string {
@@ -609,11 +601,10 @@ var File_contracts_server_server_proto protoreflect.FileDescriptor
 
 const file_contracts_server_server_proto_rawDesc = "" +
 	"\n" +
-	"\x1dcontracts/server/server.proto\x12\x06server\"j\n" +
+	"\x1dcontracts/server/server.proto\x12\x06server\"V\n" +
 	"\bDataItem\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12$\n" +
-	"\x04type\x18\x02 \x01(\x0e2\x10.server.DataTypeR\x04type\x12\x12\n" +
-	"\x04data\x18\x03 \x01(\fR\x04data\x12\x14\n" +
+	"\x04type\x18\x02 \x01(\x0e2\x10.server.DataTypeR\x04type\x12\x14\n" +
 	"\x05title\x18\x04 \x01(\tR\x05title\"_\n" +
 	"\rCreateRequest\x12$\n" +
 	"\x04type\x18\x01 \x01(\x0e2\x10.server.DataTypeR\x04type\x12\x12\n" +
