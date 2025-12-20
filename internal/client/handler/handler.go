@@ -1,9 +1,9 @@
 package handler
 
 import (
+	"bytes"
 	"context"
 	"fmt"
-	"log"
 	"time"
 
 	"google.golang.org/grpc/codes"
@@ -14,33 +14,44 @@ import (
 	"github.com/eduardtungatarov/goph-keeper/internal/server/contracts"
 )
 
+// Result результат выполнения хендлера
+type Result struct {
+	Buffer *bytes.Buffer // накопитель всех сообщений
+	Data   interface{}   // для Read/List данных
+}
+
+// NewBuffer создает новый буфер сообщений
+func NewBuffer() *bytes.Buffer {
+	return bytes.NewBufferString("")
+}
+
 // Handler обработчик команд.
 type Handler struct {
-	Client         contracts.KeeperServiceClient // Сгенерированный grpc клиент
-	MaxRetries     int                           // Максимальное количество попыток
-	RetryDelay     time.Duration                 // Задержка между попытками
-	BackoffFactor  float64                       // Коэффициент экспоненциальной задержки
-	RetryableCodes []codes.Code                  // Коды ошибок, при которых нужно повторять
+	Client         contracts.KeeperServiceClient
+	MaxRetries     int
+	RetryDelay     time.Duration
+	BackoffFactor  float64
+	RetryableCodes []codes.Code
 }
 
 // New конструктор обработчиков команд.
 func New(client contracts.KeeperServiceClient) *Handler {
 	return &Handler{
 		Client:        client,
-		MaxRetries:    3,               // По умолчанию 3 попытки
-		RetryDelay:    1 * time.Second, // Начальная задержка 1 секунда
-		BackoffFactor: 2.0,             // Удваиваем задержку каждый раз
+		MaxRetries:    3,
+		RetryDelay:    time.Second,
+		BackoffFactor: 2.0,
 		RetryableCodes: []codes.Code{
-			codes.Unavailable,       // Сервер недоступен
-			codes.DeadlineExceeded,  // Превышено время ожидания
-			codes.ResourceExhausted, // Ресурсы исчерпаны
-			codes.Internal,          // Внутренняя ошибка сервера
+			codes.Unavailable, codes.DeadlineExceeded,
+			codes.ResourceExhausted, codes.Internal,
 		},
 	}
 }
 
 // HandleLogin обработчик входа.
-func (h *Handler) HandleLogin(ctx context.Context, login, password string) {
+func (h *Handler) HandleLogin(ctx context.Context, login, password string) *Result {
+	buffer := NewBuffer()
+
 	err := h.withRetry(ctx, func(ctx context.Context) error {
 		resp, err := h.Client.Login(ctx, &contracts.LoginRequest{
 			Login:    login,
@@ -50,21 +61,25 @@ func (h *Handler) HandleLogin(ctx context.Context, login, password string) {
 			return err
 		}
 
-		fmt.Println("Login successful!")
+		buffer.WriteString("Login successful!\n")
 		if err := token.Save(resp.Token); err != nil {
-			log.Printf("Failed to save token: %v", err)
+			buffer.WriteString(fmt.Sprintf("Failed to save token: %v\n", err))
 		} else {
-			fmt.Println("Token saved to ~/.keeper/token.json")
+			buffer.WriteString("Token saved to ~/.keeper/token.json\n")
 		}
 		return nil
 	})
 	if err != nil {
-		log.Printf("Login failed after retries: %v", err)
+		buffer.WriteString(fmt.Sprintf("Login failed after retries: %v\n", err))
 	}
+
+	return &Result{Buffer: buffer}
 }
 
 // HandleRegister обработчик регистрации.
-func (h *Handler) HandleRegister(ctx context.Context, login, password string) {
+func (h *Handler) HandleRegister(ctx context.Context, login, password string) *Result {
+	buffer := NewBuffer()
+
 	err := h.withRetry(ctx, func(ctx context.Context) error {
 		resp, err := h.Client.Register(ctx, &contracts.LoginRequest{
 			Login:    login,
@@ -74,24 +89,29 @@ func (h *Handler) HandleRegister(ctx context.Context, login, password string) {
 			return err
 		}
 
-		fmt.Printf("Register successful! Token: %s\n", resp.Token)
+		buffer.WriteString(fmt.Sprintf("Register successful! Token: %s\n", resp.Token))
 		if err := token.Save(resp.Token); err != nil {
-			log.Printf("Failed to save token: %v", err)
+			buffer.WriteString(fmt.Sprintf("Failed to save token: %v\n", err))
 		} else {
-			fmt.Println("Token saved to ~/.keeper/token.json")
+			buffer.WriteString("Token saved to ~/.keeper/token.json\n")
 		}
 		return nil
 	})
 	if err != nil {
-		log.Printf("Register failed after retries: %v", err)
+		buffer.WriteString(fmt.Sprintf("Register failed after retries: %v\n", err))
 	}
+
+	return &Result{Buffer: buffer}
 }
 
 // HandleCreate обработчик создания данных.
-func (h *Handler) HandleCreate(ctx context.Context, dataTypeStr, data, title string) {
+func (h *Handler) HandleCreate(ctx context.Context, dataTypeStr, data, title string) *Result {
+	buffer := NewBuffer()
+
 	dataType, ok := h.parseDataType(dataTypeStr)
 	if !ok {
-		log.Fatalf("Invalid type: %s. Use: pwd, card, binary", dataTypeStr)
+		buffer.WriteString(fmt.Sprintf("Invalid type: %s. Use: pwd, card, binary\n", dataTypeStr))
+		return &Result{Buffer: buffer}
 	}
 
 	err := h.withRetryAuth(ctx, func(ctx context.Context) error {
@@ -105,88 +125,108 @@ func (h *Handler) HandleCreate(ctx context.Context, dataTypeStr, data, title str
 		}
 
 		if resp.Success {
-			fmt.Printf("Item '%s' created successfully\n", title)
+			buffer.WriteString(fmt.Sprintf("Item '%s' created successfully\n", title))
 		} else {
-			fmt.Println("Create failed")
+			buffer.WriteString("Create failed\n")
 		}
 		return nil
 	})
 	if err != nil {
-		log.Printf("Create failed after retries: %v", err)
+		buffer.WriteString(fmt.Sprintf("Create failed after retries: %v\n", err))
 	}
+
+	return &Result{Buffer: buffer}
 }
 
 // HandleRead обработчик чтения данных.
-func (h *Handler) HandleRead(ctx context.Context, id int64) {
+func (h *Handler) HandleRead(ctx context.Context, id int64) *Result {
+	buffer := NewBuffer()
+	var resultData contracts.ReadResponse
+
 	err := h.withRetryAuth(ctx, func(ctx context.Context) error {
-		resp, err := h.Client.Read(ctx, &contracts.ReadRequest{
-			Id: id,
-		})
+		resp, err := h.Client.Read(ctx, &contracts.ReadRequest{Id: id})
 		if err != nil {
 			return err
 		}
 
-		fmt.Printf("Type: %s\n", resp.Type.String())
-		fmt.Printf("Data: %s\n", string(resp.Data))
+		resultData = *resp
+		buffer.WriteString(fmt.Sprintf("Type: %s\n", resp.Type.String()))
+		buffer.WriteString(fmt.Sprintf("Data: %s\n", string(resp.Data)))
 		return nil
 	})
 	if err != nil {
-		log.Printf("Read failed after retries: %v", err)
+		buffer.WriteString(fmt.Sprintf("Read failed after retries: %v\n", err))
+	}
+
+	return &Result{
+		Buffer: buffer,
+		Data:   resultData,
 	}
 }
 
 // HandleDelete обработчик удаления данных.
-func (h *Handler) HandleDelete(ctx context.Context, id int64) {
+func (h *Handler) HandleDelete(ctx context.Context, id int64) *Result {
+	buffer := NewBuffer()
+
 	err := h.withRetryAuth(ctx, func(ctx context.Context) error {
-		resp, err := h.Client.Delete(ctx, &contracts.DeleteRequest{
-			Id: id,
-		})
+		resp, err := h.Client.Delete(ctx, &contracts.DeleteRequest{Id: id})
 		if err != nil {
 			return err
 		}
 
 		if resp.Success {
-			fmt.Printf("Item %d deleted successfully\n", id)
+			buffer.WriteString(fmt.Sprintf("Item %d deleted successfully\n", id))
 		} else {
-			fmt.Printf("Delete item %d failed\n", id)
+			buffer.WriteString(fmt.Sprintf("Delete item %d failed\n", id))
 		}
 		return nil
 	})
 	if err != nil {
-		log.Printf("Delete failed after retries: %v", err)
+		buffer.WriteString(fmt.Sprintf("Delete failed after retries: %v\n", err))
 	}
+
+	return &Result{Buffer: buffer}
 }
 
 // HandleList обработчик получения данных пользователя.
-func (h *Handler) HandleList(ctx context.Context) {
+func (h *Handler) HandleList(ctx context.Context) *Result {
+	buffer := NewBuffer()
+	var resultData *contracts.ListResponse
+
 	err := h.withRetryAuth(ctx, func(ctx context.Context) error {
 		resp, err := h.Client.List(ctx, &contracts.ListRequest{})
 		if err != nil {
 			return err
 		}
 
-		fmt.Println("📋 Your items:")
+		resultData = resp
+		buffer.WriteString("📋 Your items:\n")
 		if len(resp.DataList) == 0 {
-			fmt.Println("   (empty)")
+			buffer.WriteString("   (empty)\n")
 			return nil
 		}
 
 		for _, item := range resp.DataList {
-			fmt.Printf(" ID: %d | %s | %s\n",
-				item.Id, item.Type.String(), item.Title)
+			buffer.WriteString(fmt.Sprintf(" ID: %d | %s | %s\n",
+				item.Id, item.Type.String(), item.Title))
 		}
 		return nil
 	})
 	if err != nil {
-		log.Printf("List failed after retries: %v", err)
+		buffer.WriteString(fmt.Sprintf("List failed after retries: %v\n", err))
+	}
+
+	return &Result{
+		Buffer: buffer,
+		Data:   resultData,
 	}
 }
 
 // withRetryAuth выполняет операцию с аутентификацией и ретраями.
-func (h *Handler) withRetryAuth(ctx context.Context, operation func(ctx context.Context) error) error {
+func (h *Handler) withRetryAuth(ctx context.Context, operation func(context.Context) error) error {
 	t, err := token.Load()
 	if err != nil {
-		log.Printf("No token, login first")
+		fmt.Printf("No token, login first: %v\n", err)
 		return err
 	}
 
@@ -197,13 +237,13 @@ func (h *Handler) withRetryAuth(ctx context.Context, operation func(ctx context.
 }
 
 // withRetry выполняет операцию с ретраями.
-func (h *Handler) withRetry(ctx context.Context, operation func(ctx context.Context) error) error {
+func (h *Handler) withRetry(ctx context.Context, operation func(context.Context) error) error {
 	var lastErr error
 	delay := h.RetryDelay
 
 	for attempt := 0; attempt <= h.MaxRetries; attempt++ {
 		if attempt > 0 {
-			log.Printf("Retry attempt %d/%d (delay: %v)",
+			fmt.Printf("Retry attempt %d/%d (delay: %v)\n",
 				attempt, h.MaxRetries, delay)
 
 			select {
@@ -221,7 +261,6 @@ func (h *Handler) withRetry(ctx context.Context, operation func(ctx context.Cont
 		}
 
 		lastErr = err
-
 		if !h.shouldRetry(err) {
 			return err
 		}
@@ -250,7 +289,6 @@ func (h *Handler) shouldRetry(err error) bool {
 			return true
 		}
 	}
-
 	return false
 }
 

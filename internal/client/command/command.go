@@ -33,8 +33,9 @@ func (c *Command) LoginCmd() *cobra.Command {
 		Short: "Login to server",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			login = args[0]
-			c.h.HandleLogin(cmd.Context(), login, password)
+			login := args[0]
+			result := c.h.HandleLogin(cmd.Context(), login, password)
+			fmt.Print(result.Buffer.String())
 		},
 	}
 
@@ -54,8 +55,9 @@ func (c *Command) RegisterCmd() *cobra.Command {
 		Short: "Register new user",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			login = args[0]
-			c.h.HandleRegister(cmd.Context(), login, password)
+			login := args[0]
+			result := c.h.HandleRegister(cmd.Context(), login, password)
+			fmt.Print(result.Buffer.String())
 		},
 	}
 
@@ -102,7 +104,8 @@ func (c *Command) createPwdCmd() *cobra.Command {
 			password = strings.TrimSpace(password)
 
 			data := login + "|" + password
-			c.h.HandleCreate(cmd.Context(), "pwd", data, title)
+			result := c.h.HandleCreate(cmd.Context(), "pwd", data, title)
+			fmt.Print(result.Buffer.String())
 		},
 	}
 
@@ -133,7 +136,8 @@ func (c *Command) createCardCmd() *cobra.Command {
 			cvv = strings.TrimSpace(cvv)
 
 			data := number + "|" + exp + "|" + cvv
-			c.h.HandleCreate(cmd.Context(), "card", data, title)
+			result := c.h.HandleCreate(cmd.Context(), "card", data, title)
+			fmt.Print(result.Buffer.String())
 		},
 	}
 
@@ -147,7 +151,8 @@ func (c *Command) createBinaryCmd() *cobra.Command {
 		Use:   "binary",
 		Short: "Create binary item",
 		Run: func(cmd *cobra.Command, args []string) {
-			c.h.HandleCreate(cmd.Context(), "binary", data, title)
+			result := c.h.HandleCreate(cmd.Context(), "binary", data, title)
+			fmt.Print(result.Buffer.String())
 		},
 	}
 
@@ -172,7 +177,8 @@ func (c *Command) ReadCmd() *cobra.Command {
 				fmt.Printf("Invalid ID '%s': %v\n", idStr, err)
 				return
 			}
-			c.h.HandleRead(cmd.Context(), int64(id))
+			result := c.h.HandleRead(cmd.Context(), int64(id))
+			fmt.Print(result.Buffer.String())
 		},
 	}
 	return cmd
@@ -191,7 +197,8 @@ func (c *Command) DeleteCmd() *cobra.Command {
 				fmt.Printf("Invalid ID '%s': %v\n", idStr, err)
 				return
 			}
-			c.h.HandleDelete(cmd.Context(), int64(id))
+			result := c.h.HandleDelete(cmd.Context(), int64(id))
+			fmt.Print(result.Buffer.String())
 		},
 	}
 	return cmd
@@ -203,7 +210,8 @@ func (c *Command) ListCmd() *cobra.Command {
 		Use:   "list",
 		Short: "List all data items",
 		Run: func(cmd *cobra.Command, args []string) {
-			c.h.HandleList(cmd.Context())
+			result := c.h.HandleList(cmd.Context())
+			fmt.Print(result.Buffer.String())
 		},
 	}
 
