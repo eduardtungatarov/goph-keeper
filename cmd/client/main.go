@@ -13,6 +13,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/eduardtungatarov/goph-keeper/internal/client/handler"
+	"github.com/eduardtungatarov/goph-keeper/internal/client/token"
 
 	"github.com/eduardtungatarov/goph-keeper/internal/client/command"
 
@@ -59,7 +60,8 @@ func main() {
 	client := contracts.NewKeeperServiceClient(conn)
 
 	// Обработчики команд.
-	h := handler.New(client)
+	tokenStorage := token.New()
+	h := handler.New(client, tokenStorage)
 
 	// Команды.
 	c := command.New(h)

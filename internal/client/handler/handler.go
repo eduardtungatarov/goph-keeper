@@ -6,23 +6,42 @@ import (
 	"fmt"
 	"time"
 
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
-	"github.com/eduardtungatarov/goph-keeper/internal/client/token"
 	"github.com/eduardtungatarov/goph-keeper/internal/server/contracts"
 )
 
 // Result результат выполнения хендлера
 type Result struct {
 	Buffer *bytes.Buffer // накопитель всех сообщений
-	Data   interface{}   // для Read/List данных
 }
 
 // NewBuffer создает новый буфер сообщений
 func NewBuffer() *bytes.Buffer {
 	return bytes.NewBufferString("")
+}
+
+// Client клиент к grpc серверу.
+//
+//go:generate mockery --name=Client
+type Client interface {
+	Login(ctx context.Context, in *contracts.LoginRequest, opts ...grpc.CallOption) (*contracts.LoginResponse, error)
+	Register(ctx context.Context, in *contracts.LoginRequest, opts ...grpc.CallOption) (*contracts.LoginResponse, error)
+	Create(ctx context.Context, in *contracts.CreateRequest, opts ...grpc.CallOption) (*contracts.CreateResponse, error)
+	Read(ctx context.Context, in *contracts.ReadRequest, opts ...grpc.CallOption) (*contracts.ReadResponse, error)
+	Delete(ctx context.Context, in *contracts.DeleteRequest, opts ...grpc.CallOption) (*contracts.DeleteResponse, error)
+	List(ctx context.Context, in *contracts.ListRequest, opts ...grpc.CallOption) (*contracts.ListResponse, error)
+}
+
+// TokenStorage хранилище токена пользователя.
+//
+//go:generate mockery --name=TokenStorage
+type TokenStorage interface {
+	Save(token string) error
+	Load() (string, error)
 }
 
 // Handler обработчик команд.
@@ -32,10 +51,11 @@ type Handler struct {
 	RetryDelay     time.Duration
 	BackoffFactor  float64
 	RetryableCodes []codes.Code
+	TokenStorage   TokenStorage
 }
 
 // New конструктор обработчиков команд.
-func New(client contracts.KeeperServiceClient) *Handler {
+func New(client contracts.KeeperServiceClient, tokenStorage TokenStorage) *Handler {
 	return &Handler{
 		Client:        client,
 		MaxRetries:    3,
@@ -45,6 +65,7 @@ func New(client contracts.KeeperServiceClient) *Handler {
 			codes.Unavailable, codes.DeadlineExceeded,
 			codes.ResourceExhausted, codes.Internal,
 		},
+		TokenStorage: tokenStorage,
 	}
 }
 
@@ -62,7 +83,7 @@ func (h *Handler) HandleLogin(ctx context.Context, login, password string) *Resu
 		}
 
 		buffer.WriteString("Login successful!\n")
-		if err := token.Save(resp.Token); err != nil {
+		if err := h.TokenStorage.Save(resp.Token); err != nil {
 			buffer.WriteString(fmt.Sprintf("Failed to save token: %v\n", err))
 		} else {
 			buffer.WriteString("Token saved to ~/.keeper/token.json\n")
@@ -90,7 +111,7 @@ func (h *Handler) HandleRegister(ctx context.Context, login, password string) *R
 		}
 
 		buffer.WriteString(fmt.Sprintf("Register successful! Token: %s\n", resp.Token))
-		if err := token.Save(resp.Token); err != nil {
+		if err := h.TokenStorage.Save(resp.Token); err != nil {
 			buffer.WriteString(fmt.Sprintf("Failed to save token: %v\n", err))
 		} else {
 			buffer.WriteString("Token saved to ~/.keeper/token.json\n")
@@ -141,7 +162,6 @@ func (h *Handler) HandleCreate(ctx context.Context, dataTypeStr, data, title str
 // HandleRead обработчик чтения данных.
 func (h *Handler) HandleRead(ctx context.Context, id int64) *Result {
 	buffer := NewBuffer()
-	var resultData contracts.ReadResponse
 
 	err := h.withRetryAuth(ctx, func(ctx context.Context) error {
 		resp, err := h.Client.Read(ctx, &contracts.ReadRequest{Id: id})
@@ -149,7 +169,6 @@ func (h *Handler) HandleRead(ctx context.Context, id int64) *Result {
 			return err
 		}
 
-		resultData = *resp
 		buffer.WriteString(fmt.Sprintf("Type: %s\n", resp.Type.String()))
 		buffer.WriteString(fmt.Sprintf("Data: %s\n", string(resp.Data)))
 		return nil
@@ -160,7 +179,6 @@ func (h *Handler) HandleRead(ctx context.Context, id int64) *Result {
 
 	return &Result{
 		Buffer: buffer,
-		Data:   resultData,
 	}
 }
 
@@ -191,7 +209,6 @@ func (h *Handler) HandleDelete(ctx context.Context, id int64) *Result {
 // HandleList обработчик получения данных пользователя.
 func (h *Handler) HandleList(ctx context.Context) *Result {
 	buffer := NewBuffer()
-	var resultData *contracts.ListResponse
 
 	err := h.withRetryAuth(ctx, func(ctx context.Context) error {
 		resp, err := h.Client.List(ctx, &contracts.ListRequest{})
@@ -199,7 +216,6 @@ func (h *Handler) HandleList(ctx context.Context) *Result {
 			return err
 		}
 
-		resultData = resp
 		buffer.WriteString("📋 Your items:\n")
 		if len(resp.DataList) == 0 {
 			buffer.WriteString("   (empty)\n")
@@ -218,16 +234,14 @@ func (h *Handler) HandleList(ctx context.Context) *Result {
 
 	return &Result{
 		Buffer: buffer,
-		Data:   resultData,
 	}
 }
 
 // withRetryAuth выполняет операцию с аутентификацией и ретраями.
 func (h *Handler) withRetryAuth(ctx context.Context, operation func(context.Context) error) error {
-	t, err := token.Load()
+	t, err := h.TokenStorage.Load()
 	if err != nil {
-		fmt.Printf("No token, login first: %v\n", err)
-		return err
+		return fmt.Errorf("no token, login first: %w", err)
 	}
 
 	return h.withRetry(ctx, func(ctx context.Context) error {
@@ -243,8 +257,6 @@ func (h *Handler) withRetry(ctx context.Context, operation func(context.Context)
 
 	for attempt := 0; attempt <= h.MaxRetries; attempt++ {
 		if attempt > 0 {
-			fmt.Printf("Retry attempt %d/%d (delay: %v)\n",
-				attempt, h.MaxRetries, delay)
 
 			select {
 			case <-ctx.Done():

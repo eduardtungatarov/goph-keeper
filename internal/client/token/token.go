@@ -6,13 +6,19 @@ import (
 	"path/filepath"
 )
 
-// Storage хранилище токена после входа.
-type Storage struct {
+// TokenStorage хранилище токена после входа.
+type TokenStorage struct{}
+
+type tokenData struct {
 	Token string `json:"token"`
 }
 
+func New() *TokenStorage {
+	return &TokenStorage{}
+}
+
 // Save сохранить токен в файл в домашнюю директорию пользователя.
-func Save(token string) error {
+func (t *TokenStorage) Save(token string) error {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return err
@@ -24,7 +30,7 @@ func Save(token string) error {
 	}
 
 	file := filepath.Join(dir, "token.json")
-	data := Storage{Token: token}
+	data := tokenData{Token: token}
 
 	bytes, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
@@ -35,14 +41,14 @@ func Save(token string) error {
 }
 
 // Load загрузить токен в приложение из файла.
-func Load() (string, error) {
+func (t *TokenStorage) Load() (string, error) {
 	file := filepath.Join(os.Getenv("HOME"), ".keeper", "token.json")
 	data, err := os.ReadFile(file)
 	if err != nil {
 		return "", err
 	}
 
-	var ts Storage
+	var ts tokenData
 	if err := json.Unmarshal(data, &ts); err != nil {
 		return "", err
 	}
